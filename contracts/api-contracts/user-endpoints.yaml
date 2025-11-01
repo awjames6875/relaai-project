@@ -1,0 +1,381 @@
+openapi: 3.0.0
+info:
+  title: RelaAI User Profile API
+  version: 1.0.0
+  description: User profile management endpoints
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development
+  - url: https://api.relaai.com/api/v1
+    description: Production
+
+paths:
+  /users/me:
+    get:
+      summary: Get current user profile
+      description: Get authenticated user's profile
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    patch:
+      summary: Update user profile
+      description: Update current user's profile information
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullName:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                phoneNumber:
+                  type: string
+                  pattern: '^\+?[1-9]\d{1,14}$'
+                timezone:
+                  type: string
+                  description: IANA timezone (e.g., America/New_York)
+                  example: "America/New_York"
+                profilePictureUrl:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+
+  /users/me/settings:
+    get:
+      summary: Get user settings
+      description: Get user's app settings and preferences
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Settings retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+
+    patch:
+      summary: Update user settings
+      description: Update user's app settings
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notificationsEnabled:
+                  type: boolean
+                emailNotifications:
+                  type: boolean
+                pushNotifications:
+                  type: boolean
+                smsNotifications:
+                  type: boolean
+                reminderFrequency:
+                  type: string
+                  enum: [daily, weekly, biweekly, monthly]
+                autoScheduleEnabled:
+                  type: boolean
+                defaultMessageTone:
+                  type: string
+                  enum: [formal, casual, humorous, heartfelt, professional]
+                theme:
+                  type: string
+                  enum: [light, dark, auto]
+                language:
+                  type: string
+                  pattern: '^[a-z]{2}(-[A-Z]{2})?$'
+                  example: "en-US"
+      responses:
+        '200':
+          description: Settings updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+
+  /users/me/subscription:
+    get:
+      summary: Get subscription details
+      description: Get current subscription tier and status
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Subscription retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+
+  /users/me/stats:
+    get:
+      summary: Get user statistics
+      description: Get user's activity and usage statistics
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [week, month, year, all]
+            default: month
+      responses:
+        '200':
+          description: Statistics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStats'
+
+  /users/me/onboarding:
+    post:
+      summary: Complete onboarding
+      description: Mark user onboarding as complete
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                completedSteps:
+                  type: array
+                  items:
+                    type: string
+                  description: List of completed onboarding steps
+      responses:
+        '200':
+          description: Onboarding completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  onboardingCompleted:
+                    type: boolean
+                    example: true
+                  completedAt:
+                    type: string
+                    format: date-time
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        fullName:
+          type: string
+        phoneNumber:
+          type: string
+          nullable: true
+        profilePictureUrl:
+          type: string
+          format: uri
+          nullable: true
+        timezone:
+          type: string
+          example: "America/New_York"
+        subscriptionTier:
+          type: string
+          enum: [free, premium, enterprise]
+        subscriptionStatus:
+          type: string
+          enum: [active, cancelled, expired]
+        onboardingCompleted:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserSettings:
+      type: object
+      properties:
+        notificationsEnabled:
+          type: boolean
+        emailNotifications:
+          type: boolean
+        pushNotifications:
+          type: boolean
+        smsNotifications:
+          type: boolean
+        reminderFrequency:
+          type: string
+          enum: [daily, weekly, biweekly, monthly]
+        autoScheduleEnabled:
+          type: boolean
+        defaultMessageTone:
+          type: string
+          enum: [formal, casual, humorous, heartfelt, professional]
+        theme:
+          type: string
+          enum: [light, dark, auto]
+        language:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+
+    Subscription:
+      type: object
+      properties:
+        tier:
+          type: string
+          enum: [free, premium, enterprise]
+        status:
+          type: string
+          enum: [active, cancelled, expired, trial]
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+          nullable: true
+        renewalDate:
+          type: string
+          format: date-time
+          nullable: true
+        features:
+          type: object
+          properties:
+            maxContacts:
+              type: integer
+            maxMessagesPerMonth:
+              type: integer
+            aiGenerationsPerMonth:
+              type: integer
+            advancedAnalytics:
+              type: boolean
+            prioritySupport:
+              type: boolean
+
+    UserStats:
+      type: object
+      properties:
+        period:
+          type: string
+          enum: [week, month, year, all]
+        totalContacts:
+          type: integer
+        totalMessages:
+          type: integer
+        messagesSent:
+          type: integer
+        messagesScheduled:
+          type: integer
+        aiGenerations:
+          type: integer
+        averageHealthScore:
+          type: number
+          format: float
+        activeRelationships:
+          type: integer
+        topContacts:
+          type: array
+          items:
+            type: object
+            properties:
+              contactId:
+                type: string
+                format: uuid
+              contactName:
+                type: string
+              messageCount:
+                type: integer
+        activityByDay:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              messageCount:
+                type: integer
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+        - code
+        - timestamp
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: string
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    UnauthorizedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    BadRequestError:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

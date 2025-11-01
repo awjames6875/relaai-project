@@ -1,0 +1,334 @@
+openapi: 3.0.0
+info:
+  title: RelaAI Relationship API
+  version: 1.0.0
+  description: Relationship health tracking and management
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development
+  - url: https://api.relaai.com/api/v1
+    description: Production
+
+paths:
+  /relationships:
+    get:
+      summary: List relationships
+      description: Get all relationships with health scores
+      tags: [Relationships]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: temperature
+          in: query
+          schema:
+            type: string
+            enum: [cold, warm, hot]
+          description: Filter by relationship temperature
+        - name: minHealthScore
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+          description: Minimum health score filter
+        - name: maxHealthScore
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+          description: Maximum health score filter
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Relationships retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  relationships:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Relationship'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /relationships/{contactId}:
+    get:
+      summary: Get relationship by contact
+      description: Get relationship details for a specific contact
+      tags: [Relationships]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Relationship found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      summary: Update relationship
+      description: Update relationship health and metadata
+      tags: [Relationships]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                healthScore:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                  description: Manual health score override
+                contactFrequency:
+                  type: integer
+                  minimum: 1
+                  description: Desired contact frequency in days
+                notes:
+                  type: string
+                  maxLength: 1000
+                  description: Personal notes about relationship
+      responses:
+        '200':
+          description: Relationship updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+
+  /relationships/{contactId}/calculate-health:
+    post:
+      summary: Calculate health score
+      description: Recalculate relationship health score based on activity
+      tags: [Relationships]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Health score calculated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  relationshipId:
+                    type: string
+                    format: uuid
+                  contactId:
+                    type: string
+                    format: uuid
+                  healthScore:
+                    type: integer
+                    minimum: 0
+                    maximum: 100
+                  previousScore:
+                    type: integer
+                    minimum: 0
+                    maximum: 100
+                  temperature:
+                    type: string
+                    enum: [cold, warm, hot]
+                  calculatedAt:
+                    type: string
+                    format: date-time
+
+  /relationships/analytics:
+    get:
+      summary: Get relationship analytics
+      description: Get aggregate analytics across all relationships
+      tags: [Relationships]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Analytics retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  averageHealthScore:
+                    type: number
+                    format: float
+                    description: Average health score across all relationships
+                  totalRelationships:
+                    type: integer
+                  temperatureBreakdown:
+                    type: object
+                    properties:
+                      cold:
+                        type: integer
+                      warm:
+                        type: integer
+                      hot:
+                        type: integer
+                  healthScoreDistribution:
+                    type: object
+                    properties:
+                      excellent:
+                        type: integer
+                        description: Score 80-100
+                      good:
+                        type: integer
+                        description: Score 60-79
+                      needsAttention:
+                        type: integer
+                        description: Score 40-59
+                      critical:
+                        type: integer
+                        description: Score 0-39
+                  topRelationships:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Relationship'
+                    maxItems: 5
+                  needsAttention:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Relationship'
+                    maxItems: 5
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Relationship:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        contactId:
+          type: string
+          format: uuid
+        contactName:
+          type: string
+          description: Included for convenience
+        healthScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Relationship health score (0-100)
+        lastContactDate:
+          type: string
+          format: date
+          nullable: true
+          description: Date of last interaction
+        contactFrequency:
+          type: integer
+          nullable: true
+          description: Desired contact frequency in days
+        daysSinceLastContact:
+          type: integer
+          description: Calculated days since last contact
+        temperature:
+          type: string
+          enum: [cold, warm, hot]
+          description: Relationship temperature indicator
+        notes:
+          type: string
+          nullable: true
+          description: Personal notes
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+        hasMore:
+          type: boolean
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+        - code
+        - timestamp
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: string
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "not_found"
+            message: "Relationship not found"
+            code: "NOT_FOUND_404"
+            timestamp: "2025-10-31T12:00:00Z"

@@ -1,0 +1,389 @@
+openapi: 3.0.0
+info:
+  title: RelaAI Message Template API
+  version: 1.0.0
+  description: Message template management
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development
+  - url: https://api.relaai.com/api/v1
+    description: Production
+
+paths:
+  /templates:
+    get:
+      summary: List message templates
+      description: Get available message templates (system and user-created)
+      tags: [Templates]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: occasion
+          in: query
+          schema:
+            type: string
+            enum: [birthday, anniversary, casual, apology, thankyou, congratulations]
+          description: Filter by occasion
+        - name: tone
+          in: query
+          schema:
+            type: string
+            enum: [formal, casual, humorous, heartfelt, professional]
+          description: Filter by tone
+        - name: includeSystem
+          in: query
+          schema:
+            type: boolean
+            default: true
+          description: Include system templates
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Templates retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  templates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MessageTemplate'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      summary: Create custom template
+      description: Create a new custom message template
+      tags: [Templates]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - occasion
+                - templateText
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  maxLength: 100
+                  example: "My Birthday Template"
+                occasion:
+                  type: string
+                  enum: [birthday, anniversary, casual, apology, thankyou, congratulations]
+                tone:
+                  type: string
+                  enum: [formal, casual, humorous, heartfelt, professional]
+                templateText:
+                  type: string
+                  minLength: 10
+                  maxLength: 500
+                  example: "Happy birthday {{name}}! Hope you have a wonderful day filled with {{favorite_thing}}!"
+                placeholders:
+                  type: array
+                  items:
+                    type: string
+                  example: ["name", "favorite_thing"]
+      responses:
+        '201':
+          description: Template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageTemplate'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+
+  /templates/{templateId}:
+    get:
+      summary: Get template by ID
+      tags: [Templates]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Template found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageTemplate'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      summary: Update template
+      description: Update a custom template (system templates cannot be updated)
+      tags: [Templates]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                templateText:
+                  type: string
+                tone:
+                  type: string
+                  enum: [formal, casual, humorous, heartfelt, professional]
+      responses:
+        '200':
+          description: Template updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageTemplate'
+        '403':
+          description: Cannot update system template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete template
+      description: Delete a custom template (system templates cannot be deleted)
+      tags: [Templates]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Template deleted
+        '403':
+          description: Cannot delete system template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /templates/{templateId}/render:
+    post:
+      summary: Render template with values
+      description: Preview template with placeholder values filled in
+      tags: [Templates]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - placeholderValues
+              properties:
+                placeholderValues:
+                  type: object
+                  additionalProperties:
+                    type: string
+                  example:
+                    name: "John"
+                    favorite_thing: "adventure"
+      responses:
+        '200':
+          description: Template rendered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rendered:
+                    type: string
+                    example: "Happy birthday John! Hope you have a wonderful day filled with adventure!"
+                  placeholdersUsed:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: Missing required placeholders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "missing_placeholders"
+                message: "Missing required placeholders: name, favorite_thing"
+                code: "VALIDATION_400"
+                details:
+                  missing: ["name", "favorite_thing"]
+                timestamp: "2025-10-31T12:00:00Z"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    MessageTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Null for system templates
+        name:
+          type: string
+        occasion:
+          type: string
+          enum: [birthday, anniversary, casual, apology, thankyou, congratulations]
+        tone:
+          type: string
+          enum: [formal, casual, humorous, heartfelt, professional]
+          nullable: true
+        templateText:
+          type: string
+        placeholders:
+          type: array
+          items:
+            type: string
+          description: List of placeholder variables
+        isSystemTemplate:
+          type: boolean
+        usageCount:
+          type: integer
+          description: Number of times template has been used
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+        hasMore:
+          type: boolean
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+        - code
+        - timestamp
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: string
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequestError:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+```
+
+---
+
+## 💾 **How to Save These Files:**
+
+### **Step 1: Create the Files in Cursor**
+
+In your `contracts/api-contracts/` folder:
+
+1. **Right-click** on `api-contracts` folder
+2. **Select** "New File"
+3. **Name it:** `relationship-endpoints.yaml`
+4. **Copy-paste** the content from File 9 above
+5. **Save:** `Ctrl+S` (Windows) or `Cmd+S` (Mac)
+
+**Repeat for:**
+- `user-endpoints.yaml` (File 10)
+- `template-endpoints.yaml` (File 11)
+
+---
+
+### **Step 2: Verify Your Files**
+
+After creating all 3 files, your `api-contracts/` folder should have:
+```
+api-contracts/
+├── auth-endpoints.yaml ✅
+├── contact-endpoints.yaml ✅
+├── message-endpoints.yaml ✅
+├── relationship-endpoints.yaml ✅ NEW
+├── user-endpoints.yaml ✅ NEW
+└── template-endpoints.yaml ✅ NEW

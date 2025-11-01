@@ -1,0 +1,430 @@
+openapi: 3.0.0
+info:
+  title: RelaAI Message API
+  version: 1.0.0
+  description: AI-powered message generation and management
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development
+  - url: https://api.relaai.com/api/v1
+    description: Production
+
+paths:
+  /messages/generate:
+    post:
+      summary: Generate AI message
+      description: Generate personalized message using Claude AI
+      tags: [Messages]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - contactId
+                - occasion
+              properties:
+                contactId:
+                  type: string
+                  format: uuid
+                  description: UUID of the contact
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+                occasion:
+                  type: string
+                  enum: 
+                    - birthday
+                    - anniversary
+                    - casual
+                    - apology
+                    - thankyou
+                    - congratulations
+                  example: "birthday"
+                tone:
+                  type: string
+                  enum:
+                    - formal
+                    - casual
+                    - humorous
+                    - heartfelt
+                    - professional
+                  default: casual
+                  example: "casual"
+                context:
+                  type: string
+                  maxLength: 500
+                  description: Additional context for generation
+                  example: "We haven't talked in 3 months"
+      responses:
+        '200':
+          description: Message generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messageId:
+                    type: string
+                    format: uuid
+                  content:
+                    type: string
+                    description: Primary generated message
+                    example: "Happy birthday! Hope you have an amazing day filled with joy!"
+                  alternatives:
+                    type: array
+                    items:
+                      type: string
+                    description: Alternative message variations
+                    example:
+                      - "Wishing you the happiest of birthdays!"
+                      - "Hope your special day is as wonderful as you are!"
+                  confidence:
+                    type: number
+                    format: float
+                    minimum: 0
+                    maximum: 1
+                    example: 0.92
+                  occasion:
+                    type: string
+                    example: "birthday"
+                  tone:
+                    type: string
+                    example: "casual"
+                  generatedAt:
+                    type: string
+                    format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+
+  /messages:
+    get:
+      summary: List messages
+      description: Get user's messages with filtering and pagination
+      tags: [Messages]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, scheduled, sent, failed]
+          description: Filter by message status
+        - name: contactId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by contact
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Messages retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /messages/{messageId}:
+    get:
+      summary: Get message by ID
+      tags: [Messages]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Message found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      summary: Update message
+      tags: [Messages]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                occasion:
+                  type: string
+                tone:
+                  type: string
+      responses:
+        '200':
+          description: Message updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+    delete:
+      summary: Delete message
+      tags: [Messages]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Message deleted
+
+  /messages/{messageId}/schedule:
+    post:
+      summary: Schedule message
+      tags: [Messages]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - scheduledAt
+              properties:
+                scheduledAt:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 datetime
+                  example: "2025-12-25T10:00:00Z"
+      responses:
+        '200':
+          description: Message scheduled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messageId:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [scheduled]
+                  scheduledAt:
+                    type: string
+                    format: date-time
+
+  /messages/{messageId}/send:
+    post:
+      summary: Send message immediately
+      tags: [Messages]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messageId:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [sent]
+                  sentAt:
+                    type: string
+                    format: date-time
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        contactId:
+          type: string
+          format: uuid
+        content:
+          type: string
+        occasion:
+          type: string
+          nullable: true
+        tone:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [draft, scheduled, sent, failed]
+        scheduledAt:
+          type: string
+          format: date-time
+          nullable: true
+        sentAt:
+          type: string
+          format: date-time
+          nullable: true
+        aiGenerated:
+          type: boolean
+        confidenceScore:
+          type: number
+          format: float
+          nullable: true
+        alternatives:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+        hasMore:
+          type: boolean
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+        - code
+        - timestamp
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: string
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    UnauthorizedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    BadRequestError:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    RateLimitError:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "rate_limit_exceeded"
+            message: "Too many requests. Please try again later."
+            code: "RATE_LIMIT_429"
+            timestamp: "2025-10-31T12:00:00Z"

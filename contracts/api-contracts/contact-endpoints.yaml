@@ -1,0 +1,249 @@
+openapi: 3.0.0
+info:
+  title: RelaAI Contact API
+  version: 1.0.0
+  description: Contact management endpoints
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development
+
+paths:
+  /contacts:
+    get:
+      summary: List contacts
+      description: Get user's contacts with filtering and search
+      tags: [Contacts]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by name, email, or phone
+        - name: relationshipType
+          in: query
+          schema:
+            type: string
+          description: Filter by relationship type
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Contacts retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contacts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contact'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      summary: Create contact
+      tags: [Contacts]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContactRequest'
+      responses:
+        '201':
+          description: Contact created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+
+  /contacts/{contactId}:
+    get:
+      summary: Get contact by ID
+      tags: [Contacts]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Contact found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+
+    patch:
+      summary: Update contact
+      tags: [Contacts]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequest'
+      responses:
+        '200':
+          description: Contact updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+
+    delete:
+      summary: Delete contact
+      tags: [Contacts]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Contact deleted
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Contact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        phoneNumber:
+          type: string
+          nullable: true
+        email:
+          type: string
+          format: email
+          nullable: true
+        birthday:
+          type: string
+          format: date
+          nullable: true
+        anniversary:
+          type: string
+          format: date
+          nullable: true
+        relationshipType:
+          type: string
+          nullable: true
+        communicationStyle:
+          type: string
+          nullable: true
+        personalityTraits:
+          type: object
+          additionalProperties: true
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateContactRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 2
+        phoneNumber:
+          type: string
+        email:
+          type: string
+          format: email
+        birthday:
+          type: string
+          format: date
+        anniversary:
+          type: string
+          format: date
+        relationshipType:
+          type: string
+        notes:
+          type: string
+
+    UpdateContactRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        phoneNumber:
+          type: string
+        email:
+          type: string
+        birthday:
+          type: string
+          format: date
+        anniversary:
+          type: string
+          format: date
+        relationshipType:
+          type: string
+        notes:
+          type: string
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+        hasMore:
+          type: boolean
