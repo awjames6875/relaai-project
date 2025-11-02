@@ -1,24 +1,54 @@
 /**
  * RelaAI Component Interface Contracts
- * 
+ *
  * All React Native component prop interfaces.
  * These define the API for every UI component in the mobile app.
+ *
+ * Enhanced with design system types for shadows, colors, and responsive layouts.
  */
 
 import React from 'react';
 import { Contact, Message, Relationship } from '../data-contracts/dto-definitions';
+
+// ==================== DESIGN SYSTEM TYPES ====================
+
+/**
+ * Shadow elevation levels from design system
+ * Maps to theme.shadows: none, sm, md, lg, xl, 2xl
+ */
+export type ShadowElevation = 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+/**
+ * Semantic color variants for components
+ */
+export type SemanticColor = 'success' | 'error' | 'warning' | 'info';
+
+/**
+ * Theme color reference
+ * Can be a theme path or hex color
+ */
+export type ThemeColor = string;
 
 // ==================== ATOMS ====================
 
 export interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
   loading?: boolean;
   icon?: string;
   fullWidth?: boolean;
+  /**
+   * Shadow elevation from design system
+   * Default: 'md' for solid buttons, 'none' for outline/ghost
+   */
+  elevation?: ShadowElevation;
+  /**
+   * Custom shadow color (overrides default)
+   */
+  shadowColor?: ThemeColor;
   testID?: string;
 }
 
@@ -109,10 +139,26 @@ export interface SwitchProps {
 
 export interface TextProps {
   children: React.ReactNode;
-  variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'caption' | 'label';
-  color?: string;
-  align?: 'left' | 'center' | 'right';
+  /**
+   * Typography variant from design system
+   * Maps to theme.typography: h1-h6, body, bodyLarge, bodySmall, caption, label, button
+   */
+  variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'body' | 'bodyLarge' | 'bodySmall' | 'caption' | 'label' | 'button';
+  /**
+   * Text color - can be theme color path or hex
+   * @example 'primary[500]' or '#007AFF' or 'semantic.success.light'
+   */
+  color?: ThemeColor;
+  align?: 'left' | 'center' | 'right' | 'justify';
   numberOfLines?: number;
+  /**
+   * Font weight override
+   */
+  weight?: '400' | '500' | '600' | '700' | '800';
+  /**
+   * Text transform
+   */
+  transform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none';
   testID?: string;
 }
 
@@ -211,15 +257,46 @@ export interface ModalProps {
   children: React.ReactNode;
   showCloseButton?: boolean;
   size?: 'small' | 'medium' | 'large' | 'fullscreen';
+  /**
+   * Shadow elevation for modal
+   * @default 'xl' for prominence
+   */
+  elevation?: ShadowElevation;
+  /**
+   * Backdrop opacity (0-1)
+   * @default 0.5
+   */
+  backdropOpacity?: number;
   testID?: string;
 }
 
 export interface CardProps {
   children: React.ReactNode;
   onPress?: () => void;
-  elevation?: number;
-  padding?: number;
+  /**
+   * Shadow elevation from design system
+   * Replaces numeric elevation with semantic levels
+   * @default 'sm'
+   */
+  elevation?: ShadowElevation;
+  /**
+   * Custom shadow color for brand-matched shadows
+   */
+  shadowColor?: ThemeColor;
+  /**
+   * Padding using theme spacing scale (0-24)
+   * @example padding={4} uses theme.spacing[4] = 16px
+   */
+  padding?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16 | 20 | 24;
+  /**
+   * Border radius in pixels
+   * Common values: 4, 8, 12, 16, 24
+   */
   borderRadius?: number;
+  /**
+   * Background color - theme color or hex
+   */
+  backgroundColor?: ThemeColor;
   testID?: string;
 }
 
@@ -346,7 +423,24 @@ export interface UserSettings {
   reminderFrequency: 'daily' | 'weekly' | 'biweekly' | 'monthly';
   autoScheduleEnabled: boolean;
   defaultMessageTone: 'formal' | 'casual' | 'humorous' | 'heartfelt' | 'professional';
+  /**
+   * Theme mode - auto detects system preference
+   */
   theme: 'light' | 'dark' | 'auto';
+  /**
+   * Color scheme for accessibility
+   */
+  colorScheme?: 'default' | 'colorblind' | 'high-contrast';
+  /**
+   * Font scale for accessibility (0.8 - 1.5)
+   * @default 1.0
+   */
+  fontScale?: number;
+  /**
+   * Reduce animations for accessibility
+   * @default false
+   */
+  reducedMotion?: boolean;
   language: string;
 }
 

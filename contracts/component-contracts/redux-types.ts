@@ -215,7 +215,25 @@ export interface TemplatesActions {
 // ==================== UI STATE ====================
 
 export interface UIState {
+  /**
+   * Theme mode - auto detects system preference
+   */
   theme: 'light' | 'dark' | 'auto';
+  /**
+   * Color scheme for accessibility
+   * @default 'default'
+   */
+  colorScheme: 'default' | 'colorblind' | 'high-contrast';
+  /**
+   * Font scale for accessibility (0.8 - 1.5)
+   * @default 1.0
+   */
+  fontScale: number;
+  /**
+   * Reduce animations for accessibility
+   * @default false
+   */
+  reducedMotion: boolean;
   activeScreen: string;
   modals: {
     [key: string]: boolean; // Modal visibility by key
@@ -235,6 +253,9 @@ export interface ToastState {
 
 export interface UIActions {
   setTheme: (theme: 'light' | 'dark' | 'auto') => void;
+  setColorScheme: (scheme: 'default' | 'colorblind' | 'high-contrast') => void;
+  setFontScale: (scale: number) => void;
+  setReducedMotion: (enabled: boolean) => void;
   setActiveScreen: (screen: string) => void;
   showModal: (key: string) => void;
   hideModal: (key: string) => void;

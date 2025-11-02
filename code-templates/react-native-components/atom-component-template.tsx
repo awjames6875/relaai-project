@@ -32,106 +32,119 @@ interface StyledButtonProps {
 }
 
 const StyledButton = styled.TouchableOpacity<StyledButtonProps>`
-  /* TODO: Add base styles */
-  border-radius: 8px;
+  /* Base styles using theme spacing and border radius */
+  border-radius: ${({ theme }) => theme.spacing[2]}px; // 8px from theme
   align-items: center;
   justify-content: center;
   flex-direction: row;
 
-  /* TODO: Add size-based styles */
-  ${({ size }) => {
+  /* Size-based styles using theme spacing */
+  ${({ size, theme }) => {
     switch (size) {
       case 'small':
         return `
           height: 32px;
-          padding-horizontal: 12px;
+          padding-horizontal: ${theme.spacing[3]}px;  /* 12px */
         `;
       case 'large':
         return `
           height: 56px;
-          padding-horizontal: 24px;
+          padding-horizontal: ${theme.spacing[6]}px;  /* 24px */
         `;
       default: // medium
         return `
           height: 44px;
-          padding-horizontal: 16px;
+          padding-horizontal: ${theme.spacing[4]}px;  /* 16px */
         `;
     }
   }}
 
-  /* TODO: Add variant-based styles */
+  /* Variant-based styles using theme colors */
   ${({ variant, theme }) => {
-    // Note: Replace with actual theme values when theme is implemented
-    const colors = {
-      primary: '#007AFF',
-      secondary: '#5856D6',
-      danger: '#FF3B30',
-      outline: '#007AFF',
-    };
-
     switch (variant) {
       case 'primary':
         return `
-          background-color: ${colors.primary};
+          background-color: ${theme.colors.primary[500]};
         `;
       case 'secondary':
         return `
-          background-color: ${colors.secondary};
+          background-color: ${theme.colors.secondary[500]};
         `;
       case 'outline':
         return `
           background-color: transparent;
           border-width: 1px;
-          border-color: ${colors.outline};
+          border-color: ${theme.colors.primary[500]};
         `;
       case 'danger':
         return `
-          background-color: ${colors.danger};
+          background-color: ${theme.colors.semantic.error.light};
         `;
       default:
-        return `background-color: ${colors.primary};`;
+        return `background-color: ${theme.colors.primary[500]};`;
     }
   }}
 
-  /* TODO: Add fullWidth styles */
+  /* Shadow elevation using theme shadows (design system) */
+  ${({ variant, theme }) => {
+    // Solid buttons get medium shadow, outline/ghost get no shadow
+    if (variant === 'outline') {
+      return ''; // No shadow for outline buttons
+    }
+    // Apply shadow from theme
+    const shadow = theme.shadows.md.combined;
+    return `
+      shadow-color: ${shadow.shadowColor};
+      shadow-offset: ${shadow.shadowOffset.width}px ${shadow.shadowOffset.height}px;
+      shadow-opacity: ${shadow.shadowOpacity};
+      shadow-radius: ${shadow.shadowRadius}px;
+      elevation: ${shadow.elevation};
+    `;
+  }}
+
+  /* Full width */
   ${({ fullWidth }) => fullWidth && `
     width: 100%;
   `}
 
-  /* TODO: Add disabled state styles */
+  /* Disabled state */
   ${({ disabled }) => disabled && `
     opacity: 0.5;
   `}
 `;
 
 const ButtonText = styled.Text<{ variant: string; size: string }>`
-  /* TODO: Add text styles based on size */
-  ${({ size }) => {
+  /* Text styles using theme typography */
+  ${({ size, theme }) => {
     switch (size) {
       case 'small':
         return `
-          font-size: 14px;
-          font-weight: 500;
+          font-size: ${theme.typography.bodySmall.fontSize}px;
+          font-weight: ${theme.fontWeights.medium};
+          line-height: ${theme.typography.bodySmall.lineHeight}px;
         `;
       case 'large':
         return `
-          font-size: 18px;
-          font-weight: 600;
+          font-size: ${theme.typography.bodyLarge.fontSize}px;
+          font-weight: ${theme.fontWeights.semibold};
+          line-height: ${theme.typography.bodyLarge.lineHeight}px;
         `;
       default: // medium
         return `
-          font-size: 16px;
-          font-weight: 600;
+          font-size: ${theme.typography.button.fontSize}px;
+          font-weight: ${theme.typography.button.fontWeight};
+          line-height: ${theme.typography.button.lineHeight}px;
+          letter-spacing: ${theme.typography.button.letterSpacing}px;
         `;
     }
   }}
 
-  /* TODO: Add text color based on variant */
-  ${({ variant }) => {
+  /* Text color based on variant using theme colors */
+  ${({ variant, theme }) => {
     const colors = {
       primary: '#FFFFFF',
       secondary: '#FFFFFF',
-      outline: '#007AFF',
+      outline: theme.colors.primary[500],
       danger: '#FFFFFF',
     };
 

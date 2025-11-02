@@ -180,6 +180,38 @@ The complete Supabase schema is documented in `contracts/database-contracts/sche
 - Thunks for async operations
 - State shape defined in `contracts/component-contracts/redux-types.ts`
 
+### Design System
+
+RelaAI implements an advanced design system with three core principles:
+
+1. **Shadow System** - Two-layer shadows (ambient + directional) for realistic depth
+2. **Color Palette** - Primary, secondary, neutral, and semantic colors with 10 shades each
+3. **Responsive Design** - Box-based layouts that rearrange, not shrink
+
+**Key Features:**
+- **Shadows:** Elevation scale from 0 (none) → 24 (maximum prominence)
+- **Colors:** Full palettes with light/dark mode support
+- **Typography:** Modular type scale (1.25 ratio) with 12 variants
+- **Spacing:** 4px-based spacing scale for consistency
+- **Breakpoints:** Phone (0-599px), Tablet (600-1023px), Desktop (1024px+)
+- **Accessibility:** WCAG AA compliance, contrast checking, font scaling
+
+**Location:** `mobile/src/theme/`
+**Documentation:** `docs/design-system.md` and `mobile/src/theme/README.md`
+
+**Quick Example:**
+```typescript
+import styled from 'styled-components/native';
+import { applyShadow } from '@/theme';
+
+const Card = styled.View`
+  background-color: ${({ theme }) => theme.colors.neutral[100]};
+  ${({ theme }) => applyShadow(theme.shadows.sm)};
+  padding: ${({ theme }) => theme.spacing[4]}px;
+  border-radius: 12px;
+`;
+```
+
 ### Component Architecture
 
 Follows **Atomic Design** principles:
@@ -189,6 +221,12 @@ Follows **Atomic Design** principles:
 - **Screens**: Complete pages (in `mobile/src/screens/`)
 
 Component interfaces defined in `contracts/component-contracts/component-interfaces.ts`
+
+**All components use the design system:**
+- Theme colors via `${({ theme }) => theme.colors.primary[500]}`
+- Shadows via `${({ theme }) => applyShadow(theme.shadows.md)}`
+- Spacing via `${({ theme }) => theme.spacing[4]}px`
+- Typography via `${({ theme }) => theme.typography.body}`
 
 ## Working with Templates
 
