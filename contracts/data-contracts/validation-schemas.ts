@@ -5,7 +5,7 @@
  * Used for runtime validation on both frontend and backend.
  */
 
-import { z } from 'zod';
+import { z, ZodSchema, ZodError } from 'zod';
 
 // ==================== USER VALIDATION ====================
 
@@ -216,25 +216,25 @@ export const CompleteOnboardingSchema = z.object({
 
 // ==================== HELPER FUNCTIONS ====================
 
-export const validateDTO = <T>(schema: z.ZodSchema<T>, data: unknown): {
+export const validateDTO = <T>(schema: ZodSchema<T>, data: unknown): {
   success: boolean;
   data?: T;
-  errors?: z.ZodError;
+  errors?: ZodError;
 } => {
   try {
     const validatedData = schema.parse(data);
     return { success: true, data: validatedData };
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return { success: false, errors: error };
     }
     throw error;
   }
 };
 
-export const formatValidationErrors = (errors: z.ZodError): Record<string, string> => {
+export const formatValidationErrors = (errors: ZodError): Record<string, string> => {
   const formatted: Record<string, string> = {};
-  errors.errors.forEach((error) => {
+  errors.errors.forEach((error: { path: (string | number)[]; message: string }) => {
     const path = error.path.join('.');
     formatted[path] = error.message;
   });

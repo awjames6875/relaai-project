@@ -353,8 +353,8 @@ CREATE POLICY "Users can delete own important dates"
 -- Indexes
 CREATE INDEX idx_important_dates_contact_id ON important_dates(contact_id);
 CREATE INDEX idx_important_dates_date ON important_dates(date);
-CREATE INDEX idx_important_dates_upcoming ON important_dates(date) 
-  WHERE date >= CURRENT_DATE;
+-- Note: Removed idx_important_dates_upcoming - CURRENT_DATE is not IMMUTABLE in PostgreSQL
+-- Use idx_important_dates_date instead, filter at query time with WHERE date >= CURRENT_DATE
 CREATE INDEX idx_important_dates_user_id ON important_dates(user_id);
 
 -- =================================================================
