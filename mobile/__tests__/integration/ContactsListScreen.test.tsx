@@ -6,51 +6,15 @@
  * Author: Cursor Agent
  */
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
-import { NavigationContainer } from '@react-navigation/native';
-import { ThemeProvider } from 'styled-components/native';
+import { renderWithProviders, createMockNavigation, createMockRoute, screen, fireEvent, waitFor } from '../test-utils';
 
 import ContactsListScreen from '@/screens/contacts/ContactsListScreen';
-import authReducer from '@/store/slices/authSlice';
-import contactReducer from '@/store/slices/contactSlice';
-import { lightTheme } from '@/theme';
 import { createContactFactory, createContactArrayFactory } from '../factories/contact.factory';
 
 // ==================== MOCKS ====================
 
-const mockNavigate = jest.fn();
-const mockGoBack = jest.fn();
-const mockNavigation = {
-  navigate: mockNavigate,
-  goBack: mockGoBack,
-  setOptions: jest.fn(),
-  addListener: jest.fn(() => jest.fn()),
-  canGoBack: jest.fn(() => true),
-};
-
-// ==================== TEST SETUP ====================
-
-const createTestStore = (preloadedState = {}) => {
-  return configureStore({
-    reducer: {
-      auth: authReducer,
-      contacts: contactReducer,
-    },
-    preloadedState,
-  });
-};
-
-const renderWithProviders = (component: React.ReactElement, { store = createTestStore() } = {}) => {
-  return render(
-    <Provider store={store}>
-      <ThemeProvider theme={lightTheme}>
-        <NavigationContainer>{component}</NavigationContainer>
-      </ThemeProvider>
-    </Provider>
-  );
-};
+const mockNavigation = createMockNavigation();
+const mockRoute = createMockRoute();
 
 describe('ContactsListScreen', () => {
   beforeEach(() => {
@@ -66,7 +30,7 @@ describe('ContactsListScreen', () => {
         contacts: { contacts: [], selectedContact: null, isLoading: false, error: null, pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0, hasMore: false }, filters: {} },
       });
 
-      renderWithProviders(<ContactsListScreen navigation={mockNavigation as any} route={{} as any} />, { store });
+      renderWithProviders(<ContactsListScreen navigation={mockNavigation as any} route={mockRoute as any} />, { preloadedState: store });
       expect(screen.getByPlaceholderText('Search contacts...')).toBeTruthy();
     });
 
@@ -76,7 +40,7 @@ describe('ContactsListScreen', () => {
         contacts: { contacts: [], selectedContact: null, isLoading: false, error: null, pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0, hasMore: false }, filters: {} },
       });
 
-      renderWithProviders(<ContactsListScreen navigation={mockNavigation as any} route={{} as any} />, { store });
+      renderWithProviders(<ContactsListScreen navigation={mockNavigation as any} route={mockRoute as any} />, { preloadedState: store });
       expect(screen.getByText(/No contacts yet/i)).toBeTruthy();
       expect(screen.getByText(/Add your first contact to get started/i)).toBeTruthy();
     });
@@ -95,7 +59,7 @@ describe('ContactsListScreen', () => {
         },
       });
 
-      renderWithProviders(<ContactsListScreen navigation={mockNavigation as any} route={{} as any} />, { store });
+      renderWithProviders(<ContactsListScreen navigation={mockNavigation as any} route={mockRoute as any} />, { preloadedState: store });
       expect(screen.getByText(contacts[0].name)).toBeTruthy();
       expect(screen.getByText(contacts[1].name)).toBeTruthy();
       expect(screen.getByText(contacts[2].name)).toBeTruthy();
@@ -111,7 +75,7 @@ describe('ContactsListScreen', () => {
         contacts: { contacts: [], selectedContact: null, isLoading: false, error: null, pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0, hasMore: false }, filters: {} },
       });
 
-      renderWithProviders(<ContactsListScreen navigation={mockNavigation as any} route={{} as any} />, { store });
+      renderWithProviders(<ContactsListScreen navigation={mockNavigation as any} route={mockRoute as any} />, { preloadedState: store });
       
       const searchInput = screen.getByPlaceholderText('Search contacts...');
       fireEvent.changeText(searchInput, 'test');
@@ -137,7 +101,7 @@ describe('ContactsListScreen', () => {
         },
       });
 
-      renderWithProviders(<ContactsListScreen navigation={mockNavigation as any} route={{} as any} />, { store });
+      renderWithProviders(<ContactsListScreen navigation={mockNavigation as any} route={mockRoute as any} />, { preloadedState: store });
       
       expect(screen.getByText('John Doe')).toBeTruthy();
       expect(screen.queryByText('Jane Smith')).toBeNull();
@@ -154,7 +118,7 @@ describe('ContactsListScreen', () => {
         contacts: { contacts: [], selectedContact: null, isLoading: false, error: null, pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0, hasMore: false }, filters: {} },
       });
 
-      renderWithProviders(<ContactsListScreen navigation={mockNavigation as any} route={{} as any} />, { store });
+      renderWithProviders(<ContactsListScreen navigation={mockNavigation as any} route={mockRoute as any} />, { preloadedState: store });
       
       const addButton = screen.getByText('Add Contact');
       fireEvent.press(addButton);

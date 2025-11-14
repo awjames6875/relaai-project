@@ -223,6 +223,7 @@ export const AddContactScreen: React.FC<Props> = ({ navigation }) => {
 
           <ButtonContainer>
             <Button
+              testID="add-contact-submit-button"
               onPress={handleSubmit}
               isLoading={isLoading}
               fullWidth

@@ -6,51 +6,15 @@
  * Author: Cursor Agent
  */
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
-import { NavigationContainer } from '@react-navigation/native';
-import { ThemeProvider } from 'styled-components/native';
+import { renderWithProviders, createMockNavigation, createMockRoute, screen, fireEvent, waitFor } from '../test-utils';
 
 import AddContactScreen from '@/screens/contacts/AddContactScreen';
-import authReducer from '@/store/slices/authSlice';
-import contactReducer from '@/store/slices/contactSlice';
-import { lightTheme } from '@/theme';
 import { createCreateContactDTOFactory } from '../factories/contact.factory';
 
 // ==================== MOCKS ====================
 
-const mockNavigate = jest.fn();
-const mockGoBack = jest.fn();
-const mockNavigation = {
-  navigate: mockNavigate,
-  goBack: mockGoBack,
-  setOptions: jest.fn(),
-  addListener: jest.fn(() => jest.fn()),
-  canGoBack: jest.fn(() => true),
-};
-
-// ==================== TEST SETUP ====================
-
-const createTestStore = (preloadedState = {}) => {
-  return configureStore({
-    reducer: {
-      auth: authReducer,
-      contacts: contactReducer,
-    },
-    preloadedState,
-  });
-};
-
-const renderWithProviders = (component: React.ReactElement, { store = createTestStore() } = {}) => {
-  return render(
-    <Provider store={store}>
-      <ThemeProvider theme={lightTheme}>
-        <NavigationContainer>{component}</NavigationContainer>
-      </ThemeProvider>
-    </Provider>
-  );
-};
+const mockNavigation = createMockNavigation();
+const mockRoute = createMockRoute();
 
 describe('AddContactScreen', () => {
   beforeEach(() => {
@@ -66,9 +30,9 @@ describe('AddContactScreen', () => {
         contacts: { contacts: [], selectedContact: null, isLoading: false, error: null, pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0, hasMore: false }, filters: {} },
       });
 
-      renderWithProviders(<AddContactScreen navigation={mockNavigation as any} route={{} as any} />, { store });
-      
-      expect(screen.getByText('Add Contact')).toBeTruthy();
+      renderWithProviders(<AddContactScreen navigation={mockNavigation as any} route={mockRoute as any} />, { store });
+
+      expect(screen.getByTestId('add-contact-submit-button')).toBeTruthy();
       expect(screen.getByPlaceholderText('Enter contact name')).toBeTruthy();
       expect(screen.getByPlaceholderText('+1234567890')).toBeTruthy();
       expect(screen.getByPlaceholderText('email@example.com')).toBeTruthy();
@@ -80,7 +44,7 @@ describe('AddContactScreen', () => {
         contacts: { contacts: [], selectedContact: null, isLoading: false, error: null, pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0, hasMore: false }, filters: {} },
       });
 
-      renderWithProviders(<AddContactScreen navigation={mockNavigation as any} route={{} as any} />, { store });
+      renderWithProviders(<AddContactScreen navigation={mockNavigation as any} route={mockRoute as any} />, { store });
       
       expect(screen.getByText('Basic Information')).toBeTruthy();
       expect(screen.getByText('Important Dates')).toBeTruthy();
@@ -97,9 +61,9 @@ describe('AddContactScreen', () => {
         contacts: { contacts: [], selectedContact: null, isLoading: false, error: null, pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0, hasMore: false }, filters: {} },
       });
 
-      renderWithProviders(<AddContactScreen navigation={mockNavigation as any} route={{} as any} />, { store });
-      
-      const submitButton = screen.getByText('Add Contact');
+      renderWithProviders(<AddContactScreen navigation={mockNavigation as any} route={mockRoute as any} />, { store });
+
+      const submitButton = screen.getByTestId('add-contact-submit-button');
       fireEvent.press(submitButton);
 
       await waitFor(() => {
@@ -113,15 +77,15 @@ describe('AddContactScreen', () => {
         contacts: { contacts: [], selectedContact: null, isLoading: false, error: null, pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0, hasMore: false }, filters: {} },
       });
 
-      renderWithProviders(<AddContactScreen navigation={mockNavigation as any} route={{} as any} />, { store });
-      
+      renderWithProviders(<AddContactScreen navigation={mockNavigation as any} route={mockRoute as any} />, { store });
+
       const nameInput = screen.getByPlaceholderText('Enter contact name');
       const phoneInput = screen.getByPlaceholderText('+1234567890');
-      
+
       fireEvent.changeText(nameInput, 'John Doe');
       fireEvent.changeText(phoneInput, '123456'); // Invalid format
-      
-      const submitButton = screen.getByText('Add Contact');
+
+      const submitButton = screen.getByTestId('add-contact-submit-button');
       fireEvent.press(submitButton);
 
       await waitFor(() => {
@@ -135,15 +99,15 @@ describe('AddContactScreen', () => {
         contacts: { contacts: [], selectedContact: null, isLoading: false, error: null, pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0, hasMore: false }, filters: {} },
       });
 
-      renderWithProviders(<AddContactScreen navigation={mockNavigation as any} route={{} as any} />, { store });
-      
+      renderWithProviders(<AddContactScreen navigation={mockNavigation as any} route={mockRoute as any} />, { store });
+
       const nameInput = screen.getByPlaceholderText('Enter contact name');
       const emailInput = screen.getByPlaceholderText('email@example.com');
-      
+
       fireEvent.changeText(nameInput, 'John Doe');
       fireEvent.changeText(emailInput, 'not-an-email');
-      
-      const submitButton = screen.getByText('Add Contact');
+
+      const submitButton = screen.getByTestId('add-contact-submit-button');
       fireEvent.press(submitButton);
 
       await waitFor(() => {

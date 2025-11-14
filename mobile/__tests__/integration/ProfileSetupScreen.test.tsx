@@ -18,16 +18,10 @@
  */
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
-import { NavigationContainer } from '@react-navigation/native';
-import { ThemeProvider } from 'styled-components/native';
+import { renderWithProviders, createMockNavigation, createMockRoute, screen, fireEvent, waitFor } from '../test-utils';
 import { launchImageLibrary } from 'react-native-image-picker';
 
 import ProfileSetupScreen from '@/screens/auth/ProfileSetupScreen';
-import profileReducer from '@/store/slices/profileSlice';
-import { lightTheme } from '@/theme';
 import {
   createProfileFactory,
   createValidJPGImageFactory,
@@ -35,16 +29,6 @@ import {
 } from '../factories/profile.factory';
 
 // ==================== MOCKS ====================
-
-// Mock navigation
-const mockNavigate = jest.fn();
-const mockGoBack = jest.fn();
-const mockNavigation = {
-  navigate: mockNavigate,
-  goBack: mockGoBack,
-  setOptions: jest.fn(),
-  addListener: jest.fn(() => jest.fn()),
-};
 
 // Mock image picker
 jest.mock('react-native-image-picker', () => ({
@@ -55,31 +39,8 @@ const mockLaunchImageLibrary = launchImageLibrary as jest.MockedFunction<typeof 
 
 // ==================== TEST SETUP ====================
 
-const createTestStore = (preloadedState = {}) => {
-  return configureStore({
-    reducer: {
-      profile: profileReducer,
-    },
-    preloadedState,
-  });
-};
-
-const renderWithProviders = (
-  component: React.ReactElement,
-  {
-    store = createTestStore(),
-  } = {}
-) => {
-  return render(
-    <Provider store={store}>
-      <ThemeProvider theme={lightTheme}>
-        <NavigationContainer>
-          {component}
-        </NavigationContainer>
-      </ThemeProvider>
-    </Provider>
-  );
-};
+const mockNavigation = createMockNavigation();
+const mockRoute = createMockRoute({ userId: 'user-123', email: 'test@example.com' });
 
 describe('ProfileSetupScreen', () => {
   beforeEach(() => {
@@ -95,7 +56,7 @@ describe('ProfileSetupScreen', () => {
   describe('Rendering', () => {
     it('should render successfully', () => {
       // Arrange & Act
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
 
       // Assert
       expect(screen.getByTestId('profile-setup-screen')).toBeTruthy();
@@ -103,7 +64,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should render screen title', () => {
       // Arrange & Act
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
 
       // Assert
       expect(screen.getByText('Complete Your Profile')).toBeTruthy();
@@ -111,7 +72,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should render full name input', () => {
       // Arrange & Act
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
 
       // Assert
       expect(screen.getByTestId('full-name-input')).toBeTruthy();
@@ -120,7 +81,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should render phone number input', () => {
       // Arrange & Act
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
 
       // Assert
       expect(screen.getByTestId('phone-input')).toBeTruthy();
@@ -129,7 +90,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should render timezone picker', () => {
       // Arrange & Act
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
 
       // Assert
       expect(screen.getByTestId('timezone-picker')).toBeTruthy();
@@ -138,7 +99,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should render profile picture upload button', () => {
       // Arrange & Act
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
 
       // Assert
       expect(screen.getByTestId('upload-avatar-button')).toBeTruthy();
@@ -147,7 +108,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should render notification preference toggles', () => {
       // Arrange & Act
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
 
       // Assert
       expect(screen.getByTestId('email-notifications-toggle')).toBeTruthy();
@@ -158,7 +119,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should render reminder frequency picker', () => {
       // Arrange & Act
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
 
       // Assert
       expect(screen.getByTestId('reminder-frequency-picker')).toBeTruthy();
@@ -167,7 +128,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should render Save Profile button', () => {
       // Arrange & Act
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
 
       // Assert
       expect(screen.getByTestId('save-profile-button')).toBeTruthy();
@@ -176,7 +137,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should render Skip button', () => {
       // Arrange & Act
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
 
       // Assert
       expect(screen.getByTestId('skip-button')).toBeTruthy();
@@ -189,7 +150,7 @@ describe('ProfileSetupScreen', () => {
   describe('Form Interactions', () => {
     it('should update full name input value', () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const input = screen.getByTestId('full-name-input');
 
       // Act
@@ -201,7 +162,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should update phone number input value', () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const input = screen.getByTestId('phone-input');
 
       // Act
@@ -213,7 +174,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should update timezone selection', () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const picker = screen.getByTestId('timezone-picker');
 
       // Act
@@ -225,7 +186,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should toggle email notifications', () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const toggle = screen.getByTestId('email-notifications-toggle');
 
       // Act
@@ -237,7 +198,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should toggle push notifications', () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const toggle = screen.getByTestId('push-notifications-toggle');
 
       // Act
@@ -249,7 +210,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should update reminder frequency', () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const picker = screen.getByTestId('reminder-frequency-picker');
 
       // Act
@@ -269,7 +230,7 @@ describe('ProfileSetupScreen', () => {
         callback?.({ didCancel: true });
       });
 
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const uploadButton = screen.getByTestId('upload-avatar-button');
 
       // Act
@@ -295,7 +256,7 @@ describe('ProfileSetupScreen', () => {
         });
       });
 
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const uploadButton = screen.getByTestId('upload-avatar-button');
 
       // Act
@@ -309,7 +270,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should show default avatar when no image selected', () => {
       // Arrange & Act
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
 
       // Assert
       expect(screen.getByTestId('default-avatar')).toBeTruthy();
@@ -321,7 +282,7 @@ describe('ProfileSetupScreen', () => {
         callback?.({ didCancel: true });
       });
 
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const uploadButton = screen.getByTestId('upload-avatar-button');
 
       // Act
@@ -347,7 +308,7 @@ describe('ProfileSetupScreen', () => {
         });
       });
 
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const uploadButton = screen.getByTestId('upload-avatar-button');
 
       // Act
@@ -365,7 +326,7 @@ describe('ProfileSetupScreen', () => {
   describe('Validation', () => {
     it('should display error for empty full name', async () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const saveButton = screen.getByTestId('save-profile-button');
 
       // Act
@@ -379,7 +340,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should display error for invalid full name', async () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const nameInput = screen.getByTestId('full-name-input');
       const saveButton = screen.getByTestId('save-profile-button');
 
@@ -395,7 +356,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should display error for invalid phone number', async () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const nameInput = screen.getByTestId('full-name-input');
       const phoneInput = screen.getByTestId('phone-input');
       const timezonePicker = screen.getByTestId('timezone-picker');
@@ -415,7 +376,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should display error for missing timezone', async () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const nameInput = screen.getByTestId('full-name-input');
       const saveButton = screen.getByTestId('save-profile-button');
 
@@ -431,7 +392,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should clear validation errors when input is corrected', async () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const nameInput = screen.getByTestId('full-name-input');
       const saveButton = screen.getByTestId('save-profile-button');
 
@@ -457,7 +418,7 @@ describe('ProfileSetupScreen', () => {
     it('should navigate to next screen on successful save', async () => {
       // Arrange
       const store = createTestStore();
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />, { store });
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />, { store });
 
       const nameInput = screen.getByTestId('full-name-input');
       const timezonePicker = screen.getByTestId('timezone-picker');
@@ -476,7 +437,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should navigate when Skip button is pressed', () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const skipButton = screen.getByTestId('skip-button');
 
       // Act
@@ -488,7 +449,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should not navigate if validation fails', async () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const saveButton = screen.getByTestId('save-profile-button');
 
       // Act
@@ -507,7 +468,7 @@ describe('ProfileSetupScreen', () => {
     it('should show loading indicator during save', async () => {
       // Arrange
       const store = createTestStore();
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />, { store });
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />, { store });
 
       const nameInput = screen.getByTestId('full-name-input');
       const timezonePicker = screen.getByTestId('timezone-picker');
@@ -532,7 +493,7 @@ describe('ProfileSetupScreen', () => {
           avatarUploading: false,
         },
       });
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />, { store });
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />, { store });
 
       const saveButton = screen.getByTestId('save-profile-button');
 
@@ -550,7 +511,7 @@ describe('ProfileSetupScreen', () => {
           avatarUploading: true,
         },
       });
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />, { store });
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />, { store });
 
       // Assert
       expect(screen.getByTestId('avatar-uploading-indicator')).toBeTruthy();
@@ -573,7 +534,7 @@ describe('ProfileSetupScreen', () => {
       });
 
       // Act
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />, { store });
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />, { store });
 
       // Assert
       expect(screen.getByText(errorMessage)).toBeTruthy();
@@ -589,7 +550,7 @@ describe('ProfileSetupScreen', () => {
           avatarUploading: false,
         },
       });
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />, { store });
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />, { store });
 
       const nameInput = screen.getByTestId('full-name-input');
       const timezonePicker = screen.getByTestId('timezone-picker');
@@ -612,7 +573,7 @@ describe('ProfileSetupScreen', () => {
         callback?.({ errorCode: 'camera_unavailable', errorMessage: 'Camera not available' });
       });
 
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const uploadButton = screen.getByTestId('upload-avatar-button');
 
       // Act
@@ -630,7 +591,7 @@ describe('ProfileSetupScreen', () => {
   describe('Edge Cases', () => {
     it('should handle rapid button presses', async () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const skipButton = screen.getByTestId('skip-button');
 
       // Act - Rapid clicks
@@ -646,7 +607,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should handle special characters in name', async () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const nameInput = screen.getByTestId('full-name-input');
       const timezonePicker = screen.getByTestId('timezone-picker');
       const saveButton = screen.getByTestId('save-profile-button');
@@ -664,7 +625,7 @@ describe('ProfileSetupScreen', () => {
 
     it('should trim whitespace from inputs', async () => {
       // Arrange
-      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} />);
+      renderWithProviders(<ProfileSetupScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       const nameInput = screen.getByTestId('full-name-input');
       const timezonePicker = screen.getByTestId('timezone-picker');
       const saveButton = screen.getByTestId('save-profile-button');

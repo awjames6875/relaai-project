@@ -12,10 +12,86 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 // Mock React Native modules
 jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 
+// Mock React Navigation
+jest.mock('@react-navigation/native', () => ({
+  ...jest.requireActual('@react-navigation/native'),
+  useNavigation: () => ({
+    navigate: jest.fn(),
+    goBack: jest.fn(),
+    push: jest.fn(),
+    replace: jest.fn(),
+    dispatch: jest.fn(),
+  }),
+  useRoute: () => ({
+    params: {},
+    name: 'TestScreen',
+  }),
+  useFocusEffect: jest.fn(),
+  NavigationContainer: ({ children }: any) => children,
+}));
+
+// Mock React Navigation Stack
+jest.mock('@react-navigation/stack', () => ({
+  createStackNavigator: () => ({
+    Navigator: ({ children }: any) => children,
+    Screen: ({ children }: any) => children,
+  }),
+}));
+
+// Mock React Navigation Bottom Tabs
+jest.mock('@react-navigation/bottom-tabs', () => ({
+  createBottomTabNavigator: () => ({
+    Navigator: ({ children }: any) => children,
+    Screen: ({ children }: any) => children,
+  }),
+}));
+
+// Mock React Native Gesture Handler
+jest.mock('react-native-gesture-handler', () => ({
+  GestureHandlerRootView: ({ children }: any) => children,
+  PanGestureHandler: ({ children }: any) => children,
+  TapGestureHandler: ({ children }: any) => children,
+  Swipeable: ({ children }: any) => children,
+}));
+
+// Mock React Native Reanimated
+jest.mock('react-native-reanimated', () => ({
+  ...jest.requireActual('react-native-reanimated'),
+  useAnimatedStyle: () => ({}),
+  useSharedValue: () => ({ value: 0 }),
+  withTiming: (value: any) => value,
+  Animated: {
+    View: 'View',
+    Text: 'Text',
+  },
+}));
+
 // Silence console warnings in tests
+const originalError = console.error;
+const originalWarn = console.warn;
+
 global.console = {
   ...console,
-  warn: jest.fn(),
-  error: jest.fn(),
+  error: jest.fn((...args: any[]) => {
+    // Only suppress React Navigation warnings
+    if (
+      typeof args[0] === 'string' &&
+      args[0].includes('Couldn\'t find a route object')
+    ) {
+      return;
+    }
+    originalError(...args);
+  }),
+  warn: jest.fn((...args: any[]) => {
+    // Suppress some expected warnings
+    if (
+      typeof args[0] === 'string' &&
+      (args[0].includes('Non-serializable values') ||
+        args[0].includes('ViewPropTypes will be removed'))
+    ) {
+      return;
+    }
+    originalWarn(...args);
+  }),
 };
 
