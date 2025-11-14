@@ -11,6 +11,7 @@ interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
   containerStyle?: any;
+  testID?: string;
 }
 
 const Container = styled.View`
@@ -41,11 +42,11 @@ const ErrorText = styled.Text`
   margin-top: 4px;
 `;
 
-export const Input: React.FC<InputProps> = ({ label, error, containerStyle, ...props }) => {
+export const Input: React.FC<InputProps> = ({ label, error, containerStyle, testID, ...props }) => {
   return (
-    <Container style={containerStyle}>
+    <Container style={containerStyle} testID={testID}>
       {label && <Label>{label}</Label>}
-      <StyledInput hasError={!!error} {...props} />
+      <StyledInput hasError={!!error} {...props} testID={testID} />
       {error && <ErrorText>{error}</ErrorText>}
     </Container>
   );

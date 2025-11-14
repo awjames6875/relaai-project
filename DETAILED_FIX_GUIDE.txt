@@ -1,0 +1,198 @@
+DETAILED FIX GUIDE - Test Failure Analysis
+
+========================================
+PHASE 1: UNBLOCK TEST DISCOVERY (7 MIN)
+========================================
+
+STEP 1.1: Update jest.config.js (2 minutes)
+- File: mobile/jest.config.js
+- Find line 6 with transformIgnorePatterns
+- Add 'react-native-image-picker' to the allow-list
+- OLD: ...@faker-js)/)',
+- NEW: ...@faker-js|react-native-image-picker)/)',
+
+STEP 1.2: Move Factory Files (2 minutes)
+- Create: mobile/__tests__/test-factories/
+- Move 4 factory files from mobile/__tests__/factories/
+- Update imports in all test files that use factories
+- Delete empty: mobile/__tests__/factories/
+
+STEP 1.3: Exclude Setup File (3 minutes)
+- Option A: Rename src/__tests__/setup.ts to setup.config.ts
+- OR Option B: Update jest.config.js testMatch pattern to exclude setup*
+
+RESULT: 26 import errors resolved, tests now discoverable
+
+========================================
+PHASE 2: FIX TEST IMPORTS (10 MIN)
+========================================
+
+STEP 2.1: ProfileSetupScreen.test.tsx (2 minutes)
+- File: mobile/__tests__/integration/ProfileSetupScreen.test.tsx
+- Add at top: import { createTestStore } from '../test-utils';
+
+STEP 2.2: profile-setup-flow.test.tsx (5 minutes)
+- File: mobile/__tests__/integration/profile-setup-flow.test.tsx
+- Add at top: import { createTestStore } from '../test-utils';
+- REMOVE lines 73-81: Delete entire local createTestStore function
+
+STEP 2.3: Verify Other Tests (3 minutes)
+- Check AddContactScreen.test.tsx has proper imports
+- Check ContactsListScreen.test.tsx has proper imports
+- Run npm test to verify no more ReferenceErrors
+
+RESULT: 29 tests can now execute properly
+
+========================================
+PHASE 3: IMPLEMENT FACTORIES (45 MIN)
+========================================
+
+STEP 3.1: profile.factory.ts (15 minutes)
+- File: mobile/__tests__/test-factories/profile.factory.ts
+- Implement 3 functions using faker:
+  * createProfileFactory()
+  * createProfileUpdatePayloadFactory()
+  * createValidJPGImageFactory()
+- Use Faker.js for realistic data generation
+
+STEP 3.2: contact.factory.ts (15 minutes)
+- File: mobile/__tests__/test-factories/contact.factory.ts
+- Implement 2 functions:
+  * createContactFactory()
+  * createCreateContactDTOFactory()
+
+STEP 3.3: message.factory.ts (10 minutes)
+- File: mobile/__tests__/test-factories/message.factory.ts
+- Implement 1 function:
+  * createMessageFactory()
+
+STEP 3.4: relationship.factory.ts (5 minutes)
+- File: mobile/__tests__/test-factories/relationship.factory.ts
+- Implement 1 function:
+  * createRelationshipFactory()
+
+RESULT: 20 tests now have valid test data
+
+========================================
+PHASE 4: FIX testIDs (35 MIN)
+========================================
+
+STEP 4.1: ProfileSetupScreen.tsx (15 minutes)
+- File: mobile/src/screens/auth/ProfileSetupScreen.tsx
+- 8 Renames (camelCase to kebab-case):
+  Line 632: fullNameInput -> full-name-input
+  Line 650: phoneInput -> phone-input
+  Line 671: timezonePicker -> timezone-picker
+  Line 733: pushToggle -> push-notifications-toggle
+  Line 747: emailToggle -> email-notifications-toggle
+  Line 761: smsToggle -> sms-notifications-toggle
+  Line 810: saveButton -> save-profile-button
+  Line 821: skipButton -> skip-button
+
+- 4 Additions (new testIDs):
+  Line 566: Add testID="profile-setup-screen" to Container
+  Line 591: Add testID="upload-avatar-button" to AvatarTouchable
+  Line 598: Add testID="avatar-preview" to AvatarImage
+  Line 787: Add testID={`frequency-${freq}`} to FrequencyButton
+
+STEP 4.2: AddContactScreen.tsx (10 minutes)
+- File: mobile/src/screens/contacts/AddContactScreen.tsx
+- Verify submit button has: testID="add-contact-submit-button"
+- Check test file for expected testIDs
+- Add any missing testIDs in kebab-case
+
+STEP 4.3: ContactsListScreen.tsx (10 minutes)
+- File: mobile/src/screens/contacts/ContactsListScreen.tsx
+- Check test file expectations
+- Add required testIDs in kebab-case
+- Ensure list items have testID identifiers
+
+RESULT: 80+ tests find elements correctly
+
+========================================
+VERIFICATION
+========================================
+
+After each phase:
+1. Run: npm test 2>&1 | tail -50
+2. Check: Error count decreases
+3. Check: Success rate increases
+
+Final verification:
+- npm test (full suite)
+- Expected: >190 passing (90%+ success)
+- Zero import errors
+- Zero testID errors
+- Zero undefined factory errors
+
+========================================
+PRIORITY ORDER (for quick wins)
+========================================
+
+1. jest.config.js fix (2 min) - Unblocks 26 tests
+2. Test imports (5 min) - Unblocks 29 tests
+3. ProfileSetupScreen testIDs (15 min) - Fixes 45+ tests
+4. Factories (45 min) - Completes data for 20 tests
+5. Other screens (10 min) - Fixes remaining tests
+
+Total time: 97 minutes for 155+ tests fixed
+
+========================================
+KEY TESTID MISMATCHES
+========================================
+
+ALL ProfileSetupScreen testID issues:
+Expected (in tests)          Component Has           Action
+-----------------           ---------------         ------
+full-name-input              fullNameInput           RENAME
+phone-input                  phoneInput              RENAME
+timezone-picker              timezonePicker          RENAME
+email-notifications-toggle   emailToggle             RENAME
+push-notifications-toggle    pushToggle              RENAME
+sms-notifications-toggle     smsToggle               RENAME
+save-profile-button          saveButton              RENAME
+skip-button                  skipButton              RENAME
+upload-avatar-button         NOT FOUND               ADD
+avatar-preview               NOT FOUND               ADD
+profile-setup-screen         NOT FOUND               ADD
+frequency-daily              NOT FOUND               ADD
+frequency-weekly             NOT FOUND               ADD
+frequency-biweekly           NOT FOUND               ADD
+frequency-monthly            NOT FOUND               ADD
+
+NAMING CONVENTION:
+- Tests expect: kebab-case (full-name-input)
+- Components have: camelCase (fullNameInput)
+- Solution: Standardize on kebab-case for all testIDs
+
+========================================
+SAMPLE TEST COMMAND OUTPUTS
+========================================
+
+Before fixes:
+Test Suites: 15 failed, 1 passed, 16 total
+Tests:       163 failed, 46 passed, 209 total
+Success:     22%
+
+Expected after all fixes:
+Test Suites: 0-1 failed, 14-15 passed, 16 total
+Tests:       <10 failed, 200+ passed, 209 total
+Success:     >95%
+
+========================================
+ESTIMATE BREAKDOWN
+========================================
+
+Phase 1: 7 minutes  (Unblock discovery)
+Phase 2: 10 minutes (Fix imports)
+Phase 3: 45 minutes (Implement factories)
+Phase 4: 35 minutes (Fix testIDs)
+Total:   97 minutes
+
+Tests fixed by phase:
+Phase 1: +26 tests
+Phase 2: +29 tests
+Phase 3: +20 tests
+Phase 4: +80+ tests
+TOTAL:   155+ tests (95% of failures)
+

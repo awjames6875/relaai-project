@@ -9,7 +9,7 @@ import React from 'react';
 import { renderWithProviders, createMockNavigation, createMockRoute, screen, fireEvent, waitFor } from '../test-utils';
 
 import AddContactScreen from '@/screens/contacts/AddContactScreen';
-import { createCreateContactDTOFactory } from '../factories/contact.factory';
+import { createCreateContactDTOFactory } from '../test-factories/contact.factory';
 
 // ==================== MOCKS ====================
 

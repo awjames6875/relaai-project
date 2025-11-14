@@ -33,7 +33,7 @@ import {
   createProfileFactory,
   createValidJPGImageFactory,
   createProfileUpdatePayloadFactory,
-} from '../factories/profile.factory';
+} from '../test-factories/profile.factory';
 
 // ==================== MOCKS ====================
 

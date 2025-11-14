@@ -3,7 +3,7 @@ module.exports = {
   testEnvironment: 'node',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|@react-navigation|@supabase|@reduxjs|redux|styled-components|react-redux|date-fns|@faker-js)/)',
+    'node_modules/(?!(react-native|@react-native|@react-navigation|@supabase|@reduxjs|redux|styled-components|react-redux|date-fns|@faker-js|react-native-image-picker)/)',
   ],
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
   moduleNameMapper: {
@@ -37,6 +37,12 @@ module.exports = {
   testMatch: [
     '**/__tests__/**/*.{ts,tsx}',
     '**/?(*.)+(spec|test).{ts,tsx}',
+  ],
+  testPathIgnorePatterns: [
+    'node_modules',
+    'setup.ts',
+    'test-factories',
+    'test-utils',
   ],
 };
 

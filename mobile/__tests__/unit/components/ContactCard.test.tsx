@@ -13,7 +13,7 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 import { ThemeProvider } from 'styled-components/native';
 import { ContactCard } from '@/components/molecules';
 import { lightTheme } from '@/theme';
-import { createContactFactory } from '../../factories/contact.factory';
+import { createContactFactory } from '../../test-factories/contact.factory';
 
 // ==================== TEST SETUP ====================
 

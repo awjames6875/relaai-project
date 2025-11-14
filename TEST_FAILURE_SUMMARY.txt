@@ -1,0 +1,98 @@
+TEST FAILURE ANALYSIS - RelaAI Mobile
+
+Date: 2025-11-14
+Total Tests: 209 (163 failed, 46 passed)
+Success Rate: 22% -> Target: 90%
+
+ROOT CAUSES (sorted by priority and impact):
+
+1. MISSING testID ATTRIBUTES (80 failures - 49%)
+   - Priority: HIGHEST
+   - Effort: 35 minutes
+   - Issue: camelCase testIDs (fullNameInput) vs kebab-case expected (full-name-input)
+   - Files: ProfileSetupScreen.tsx, AddContactScreen.tsx, ContactsListScreen.tsx
+   - Fix: Rename 8 testIDs, add 4 missing testIDs in ProfileSetupScreen
+
+2. MODULE IMPORT ERRORS (26 failures - 16%)
+   - Priority: VERY HIGH (blocks 2 test suites)
+   - Effort: 2 minutes
+   - Issue: react-native-image-picker not in Jest transformIgnorePatterns
+   - File: jest.config.js line 6
+   - Fix: Add 'react-native-image-picker' to allow-list
+
+3. UNDEFINED FACTORY FUNCTIONS (20 failures - 12%)
+   - Priority: HIGH
+   - Effort: 45 minutes
+   - Files: profile.factory.ts, contact.factory.ts, message.factory.ts, relationship.factory.ts
+   - Fix: Implement missing factory functions
+
+4. NAVIGATION/IMPORT CONTEXT ISSUES (29 failures - 18%)
+   - Priority: MEDIUM
+   - Effort: 10 minutes
+   - Issue: Missing createTestStore import in test files
+   - Files: ProfileSetupScreen.test.tsx, profile-setup-flow.test.tsx
+   - Fix: Add import from test-utils
+
+5. MISCELLANEOUS ISSUES (8 failures - 5%)
+   - Priority: LOW
+   - Effort: 10 minutes
+   - Issue: Factory files treated as test suites, setup.ts as test
+   - Fix: Move factories to separate directory
+
+IMPLEMENTATION ROADMAP (Total: 97 minutes)
+
+Phase 1 (7 min): Unblock Test Discovery
+  - jest.config.js fix (2 min)
+  - Move factory files (2 min)
+  - Exclude setup.ts (3 min)
+  Result: 26 tests visible
+
+Phase 2 (10 min): Fix Test Imports
+  - Add createTestStore import (5 min)
+  - Fix duplicate store defs (5 min)
+  Result: 29 tests executable
+
+Phase 3 (45 min): Implement Factories
+  - profile.factory.ts (15 min)
+  - contact.factory.ts (15 min)
+  - message.factory.ts (10 min)
+  - relationship.factory.ts (5 min)
+  Result: 20 tests have data
+
+Phase 4 (35 min): Fix testIDs
+  - ProfileSetupScreen.tsx (15 min) - 8 renames + 4 additions
+  - AddContactScreen.tsx (10 min)
+  - ContactsListScreen.tsx (10 min)
+  Result: 80+ tests pass
+
+FILES TO MODIFY (10 total):
+1. jest.config.js - 1 line change
+2. __tests__/integration/ProfileSetupScreen.test.tsx - 1 import
+3. __tests__/integration/profile-setup-flow.test.tsx - 1 import
+4-7. Factory files - implement functions
+8-10. Screen components - update testIDs
+
+KEY TESTID MISMATCHES (ProfileSetupScreen):
+- fullNameInput -> full-name-input
+- phoneInput -> phone-input
+- timezonePicker -> timezone-picker
+- emailToggle -> email-notifications-toggle
+- pushToggle -> push-notifications-toggle
+- smsToggle -> sms-notifications-toggle
+- saveButton -> save-profile-button
+- skipButton -> skip-button
++ MISSING: upload-avatar-button, avatar-preview, profile-setup-screen
+
+METRICS PROJECTION:
+After Phase 1: 34% success (72/209 tests)
+After Phase 2: 48% success (101/209 tests)
+After Phase 3: 58% success (121/209 tests)
+After Phase 4: 96% success (200/209 tests)
+
+QUICK START:
+1. Fix jest.config.js (2 min) - HIGHEST IMPACT
+2. Add imports to test files (5 min) - UNBLOCKS TESTS
+3. Fix ProfileSetupScreen testIDs (15 min) - FIXES 45+ TESTS
+4. Implement factories (45 min) - COMPLETES DATA
+5. Fix other screens (10 min) - FINAL COVERAGE
+

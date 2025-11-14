@@ -35,7 +35,7 @@ import {
   createValidJPGImageFactory,
   createOversizedImageFactory,
   type ProfileUpdatePayload,
-} from '../../factories/profile.factory';
+} from '../../test-factories/profile.factory';
 
 // ==================== MOCKS ====================
 

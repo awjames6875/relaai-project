@@ -23,8 +23,11 @@ jest.mock('@react-navigation/native', () => ({
     dispatch: jest.fn(),
   }),
   useRoute: () => ({
-    params: {},
-    name: 'TestScreen',
+    params: {
+      userId: 'user-123',
+      email: 'test@example.com',
+    },
+    name: 'ProfileSetup',
   }),
   useFocusEffect: jest.fn(),
   NavigationContainer: ({ children }: any) => children,

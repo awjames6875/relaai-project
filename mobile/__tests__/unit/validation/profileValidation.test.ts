@@ -31,7 +31,7 @@ import {
   createOversizedImageFactory,
   createUnsupportedImageFactory,
   createSVGImageFactory,
-} from '../../factories/profile.factory';
+} from '../../test-factories/profile.factory';
 
 // ==================== FULL NAME VALIDATION TESTS ====================
 

@@ -61,7 +61,7 @@ import {
 
 // Theme
 import { applyShadow } from '../../theme/utils/shadows';
-import { useResponsive } from '../../theme/utils/responsive';
+import { useIsTablet } from '../../theme/utils/responsive';
 
 // ============================================================================
 // Types
@@ -316,7 +316,7 @@ export const ProfileSetupScreen: React.FC = () => {
   const navigation = useNavigation<ProfileSetupScreenNavigationProp>();
   const route = useRoute<ProfileSetupScreenRouteProp>();
   const dispatch = useDispatch<AppDispatch>();
-  const { isTablet } = useResponsive();
+  const isTablet = useIsTablet();
 
   // Redux state
   const isLoading = useSelector(selectProfileLoading);
@@ -563,7 +563,7 @@ export const ProfileSetupScreen: React.FC = () => {
   // ============================================================================
 
   return (
-    <Container>
+    <Container testID="profile-setup-screen">
       <KeyboardView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
@@ -592,6 +592,7 @@ export const ProfileSetupScreen: React.FC = () => {
                   onPress={handleImagePicker}
                   accessibilityLabel="Upload profile picture"
                   accessibilityRole="button"
+                  testID="upload-avatar-button"
                 >
                   <AvatarWrapper>
                     {avatarPreview ? (
@@ -629,7 +630,7 @@ export const ProfileSetupScreen: React.FC = () => {
                 placeholder="Enter your full name"
                 error={errors.fullName}
                 accessibilityLabel="Full name input"
-                testID="fullNameInput"
+                testID="full-name-input"
                 autoCapitalize="words"
                 autoComplete="name"
               />
@@ -647,7 +648,7 @@ export const ProfileSetupScreen: React.FC = () => {
                 placeholder="+1234567890"
                 error={errors.phone}
                 accessibilityLabel="Phone number input"
-                testID="phoneInput"
+                testID="phone-input"
                 keyboardType="phone-pad"
                 autoComplete="tel"
               />
@@ -668,7 +669,7 @@ export const ProfileSetupScreen: React.FC = () => {
                   hasError={!!errors.timezone}
                   accessibilityLabel="Timezone picker"
                   accessibilityRole="button"
-                  testID="timezonePicker"
+                  testID="timezone-picker"
                 >
                   <PickerLabel hasValue={!!timezone}>
                     {COMMON_TIMEZONES.find((tz) => tz.value === timezone)?.label ||
@@ -730,7 +731,7 @@ export const ProfileSetupScreen: React.FC = () => {
                   accessibilityLabel="Push notifications toggle"
                   accessibilityRole="switch"
                   accessibilityState={{ checked: notificationPrefs.push }}
-                  testID="pushToggle"
+                  testID="push-notifications-toggle"
                 >
                   <ToggleThumb isActive={notificationPrefs.push} />
                 </ToggleButton>
@@ -744,7 +745,7 @@ export const ProfileSetupScreen: React.FC = () => {
                   accessibilityLabel="Email notifications toggle"
                   accessibilityRole="switch"
                   accessibilityState={{ checked: notificationPrefs.email }}
-                  testID="emailToggle"
+                  testID="email-notifications-toggle"
                 >
                   <ToggleThumb isActive={notificationPrefs.email} />
                 </ToggleButton>
@@ -758,13 +759,13 @@ export const ProfileSetupScreen: React.FC = () => {
                   accessibilityLabel="SMS notifications toggle"
                   accessibilityRole="switch"
                   accessibilityState={{ checked: notificationPrefs.sms }}
-                  testID="smsToggle"
+                  testID="sms-notifications-toggle"
                 >
                   <ToggleThumb isActive={notificationPrefs.sms} />
                 </ToggleButton>
               </ToggleRow>
 
-              <FrequencyContainer>
+              <FrequencyContainer testID="reminder-frequency-picker">
                 <Text
                   style={{
                     fontSize: 14,
@@ -807,7 +808,7 @@ export const ProfileSetupScreen: React.FC = () => {
                 fullWidth
                 isLoading={isLoading}
                 disabled={isLoading || showSuccess}
-                testID="saveButton"
+                testID="save-profile-button"
               >
                 Save Profile
               </Button>
@@ -818,7 +819,7 @@ export const ProfileSetupScreen: React.FC = () => {
                 onPress={handleSkip}
                 fullWidth
                 disabled={isLoading || showSuccess}
-                testID="skipButton"
+                testID="skip-button"
               >
                 Skip for now
               </Button>
