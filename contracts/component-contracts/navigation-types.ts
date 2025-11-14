@@ -15,11 +15,15 @@ export type RootStackParamList = {
   };
   
   // ==================== AUTH STACK ====================
-  
+
   export type AuthStackParamList = {
     Login: undefined;
     Signup: undefined;
     ForgotPassword: undefined;
+    ProfileSetup: {
+      userId?: string;
+      email?: string;
+    };
   };
   
   // ==================== MAIN TAB NAVIGATION ====================
@@ -40,17 +44,17 @@ export type RootStackParamList = {
   };
   
   // ==================== CONTACTS STACK ====================
-  
+
   export type ContactsStackParamList = {
     ContactsList: undefined;
+    AddContact: undefined;
+    EditContact: {
+      contactId: string;
+    };
     ContactDetail: {
       contactId: string;
     };
-    EditContact: {
-      contactId?: string;
-      mode: 'create' | 'edit';
-    };
-    ImportContacts: undefined;
+    ImportContacts: undefined;  // Future feature
   };
   
   // ==================== MESSAGES STACK ====================
@@ -139,6 +143,8 @@ export type RootStackParamList = {
   export type AuthNavigationProp = StackNavigationProp<AuthStackParamList>;
   export type LoginScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
   export type SignupScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Signup'>;
+  export type ProfileSetupScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'ProfileSetup'>;
+  export type ProfileSetupScreenRouteProp = RouteProp<AuthStackParamList, 'ProfileSetup'>;
   
   // Main Tab Props
   export type MainTabNavigationProp = BottomTabNavigationProp<MainTabParamList>;
@@ -150,6 +156,8 @@ export type RootStackParamList = {
   
   // Contacts Stack Props
   export type ContactsNavigationProp = StackNavigationProp<ContactsStackParamList>;
+  export type ContactsListNavigationProp = StackNavigationProp<ContactsStackParamList, 'ContactsList'>;
+  export type AddContactNavigationProp = StackNavigationProp<ContactsStackParamList, 'AddContact'>;
   export type ContactDetailNavigationProp = StackNavigationProp<ContactsStackParamList, 'ContactDetail'>;
   export type ContactDetailRouteProp = RouteProp<ContactsStackParamList, 'ContactDetail'>;
   export type EditContactNavigationProp = StackNavigationProp<ContactsStackParamList, 'EditContact'>;

@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context>
+  <metadata>
+    <epic_id>1</epic_id>
+    <story_id>3</story_id>
+    <story_key>1-3-profile-setup</story_key>
+    <story_title>Profile Setup</story_title>
+    <status>ready-for-dev</status>
+    <generated>2025-01-02</generated>
+  </metadata>
+
+  <story>
+    <as_a>new user</as_a>
+    <i_want>to complete my profile after registration</i_want>
+    <so_that>the app can personalize my experience and enable proper user identification</so_that>
+  </story>
+
+  <acceptance_criteria>
+    <criterion id="1">
+      <title>Profile Form Fields</title>
+      <details>User can enter full name (required), phone number (optional), select timezone from dropdown (required). All fields validate before saving.</details>
+    </criterion>
+    <criterion id="2">
+      <title>Profile Picture Upload</title>
+      <details>User can upload profile picture (optional). Image preview shown before saving. Supported formats: JPG, PNG (max 5MB). Default avatar used if not uploaded.</details>
+    </criterion>
+    <criterion id="3">
+      <title>Notification Preferences</title>
+      <details>User can enable/disable push notifications, email notifications, and set reminder frequency (daily, weekly, biweekly, monthly). Settings saved with profile.</details>
+    </criterion>
+    <criterion id="4">
+      <title>Skip Option</title>
+      <details>"Skip for now" button available. User can access profile setup later from settings. App continues to main screen if skipped.</details>
+    </criterion>
+    <criterion id="5">
+      <title>Save & Validation</title>
+      <details>Profile saved successfully to Supabase profiles table. Success message shown. User redirected to onboarding tutorial (US-1.4) or main screen. Profile save completes in &lt;2 seconds.</details>
+    </criterion>
+  </acceptance_criteria>
+
+  <tasks>
+    <task id="1" ac_ref="1,2,3,4">
+      <title>Create Profile Setup Screen Component</title>
+      <subtasks>
+        <subtask>Create ProfileSetupScreen.tsx in mobile/src/screens/auth/</subtask>
+        <subtask>Implement form layout with Input atoms from design system</subtask>
+        <subtask>Add timezone picker component</subtask>
+        <subtask>Add profile picture upload with image picker</subtask>
+        <subtask>Add notification preference toggles</subtask>
+        <subtask>Add "Skip for now" and "Save Profile" buttons</subtask>
+        <subtask>Implement responsive design (phone/tablet breakpoints)</subtask>
+        <subtask>Apply theme shadows, colors, spacing from design system</subtask>
+      </subtasks>
+    </task>
+    <task id="2" ac_ref="5">
+      <title>Implement Profile Update Logic</title>
+      <subtasks>
+        <subtask>Create Redux slice for profile state (mobile/src/store/profileSlice.ts)</subtask>
+        <subtask>Create async thunk updateProfile to call Supabase</subtask>
+        <subtask>Update profiles table with user data</subtask>
+        <subtask>Handle profile picture upload to Supabase Storage (if provided)</subtask>
+        <subtask>Store profile data in Redux store</subtask>
+        <subtask>Handle error states (network, validation, storage)</subtask>
+      </subtasks>
+    </task>
+    <task id="3" ac_ref="1,2">
+      <title>Form Validation</title>
+      <subtasks>
+        <subtask>Validate full name (2-100 characters, no special chars except spaces, hyphens, apostrophes)</subtask>
+        <subtask>Validate phone number format (optional, E.164 format if provided)</subtask>
+        <subtask>Validate timezone selection (must be valid IANA timezone)</subtask>
+        <subtask>Validate image file (type, size) before upload</subtask>
+        <subtask>Show inline validation errors with design system error states</subtask>
+      </subtasks>
+    </task>
+    <task id="4" ac_ref="4,5">
+      <title>Navigation Flow</title>
+      <subtasks>
+        <subtask>Navigate to ProfileSetupScreen after successful registration</subtask>
+        <subtask>Handle "Skip" action → navigate to OnboardingTutorial or Main screen</subtask>
+        <subtask>Handle "Save" action → update profile → navigate to next screen</subtask>
+        <subtask>Add profile setup to navigation stack</subtask>
+      </subtasks>
+    </task>
+    <task id="5" ac_ref="all">
+      <title>Testing</title>
+      <subtasks>
+        <subtask>Unit tests for profile slice (thunks, reducers, selectors)</subtask>
+        <subtask>Unit tests for validation functions</subtask>
+        <subtask>Component tests for ProfileSetupScreen</subtask>
+        <subtask>Integration test: complete profile flow end-to-end</subtask>
+        <subtask>Test error handling (network failures, validation errors)</subtask>
+        <subtask>Test skip functionality</subtask>
+        <subtask>Accessibility tests (screen readers, labels)</subtask>
+      </subtasks>
+    </task>
+  </tasks>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Epic 1: User Onboarding - US-1.3</section>
+        <snippet>Acceptance criteria for profile setup including form fields, image upload, notification preferences, skip option, and save validation. Profile must save in under 2 seconds to Supabase profiles table.</snippet>
+      </doc>
+      <doc>
+        <path>docs/design-system.md</path>
+        <title>Design System Documentation</title>
+        <section>Shadow System, Color Palette, Typography, Spacing</section>
+        <snippet>Two-layer shadow system (ambient + directional), color palette with 10 shades per color (primary blue, secondary purple, neutral gray), responsive box-based layouts. Use theme.colors, theme.shadows, theme.spacing for all styling.</snippet>
+      </doc>
+      <doc>
+        <path>contracts/database-contracts/schema.sql</path>
+        <title>Database Schema</title>
+        <section>profiles table</section>
+        <snippet>CREATE TABLE profiles (user_id UUID REFERENCES auth.users PRIMARY KEY, full_name TEXT, phone TEXT, timezone TEXT, avatar_url TEXT, notification_preferences JSONB, created_at TIMESTAMP, updated_at TIMESTAMP). RLS policies: users can only read/update their own profile.</snippet>
+      </doc>
+      <doc>
+        <path>contracts/data-contracts/dto-definitions.ts</path>
+        <title>Data Transfer Objects</title>
+        <section>Profile DTO</section>
+        <snippet>Profile interface with userId, fullName, phone, timezone, avatarUrl, notificationPreferences (object with email, push, reminderFrequency fields).</snippet>
+      </doc>
+      <doc>
+        <path>contracts/component-contracts/component-interfaces.ts</path>
+        <title>Component Interfaces</title>
+        <section>InputProps, ButtonProps, UserSettings</section>
+        <snippet>Atomic component interfaces for Input (with validation, error states) and Button (with variants, sizes, loading states). UserSettings includes notification preferences structure.</snippet>
+      </doc>
+      <doc>
+        <path>mobile/src/theme/README.md</path>
+        <title>Theme System Usage Guide</title>
+        <section>Quick Start, Color Usage, Shadow Usage</section>
+        <snippet>Import theme and use ThemeProvider. Access colors via theme.colors.primary[500], shadows via theme.shadows.md, spacing via theme.spacing[4]. Use responsive hooks: useResponsive(), useGridColumns().</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <artifact>
+        <path>mobile/src/components/atoms/Input.tsx</path>
+        <kind>component</kind>
+        <symbol>Input</symbol>
+        <reason>Reusable input component with validation, error states, labels - use for full name, phone, timezone fields</reason>
+      </artifact>
+      <artifact>
+        <path>mobile/src/components/atoms/Button.tsx</path>
+        <kind>component</kind>
+        <symbol>Button</symbol>
+        <reason>Reusable button component with variants (primary, secondary, outline), sizes, loading states - use for "Save Profile" and "Skip" buttons</reason>
+      </artifact>
+      <artifact>
+        <path>mobile/src/screens/auth/LoginScreen.tsx</path>
+        <kind>screen</kind>
+        <symbol>LoginScreen</symbol>
+        <reason>Example auth screen showing form layout patterns, validation, navigation flow, theme integration - follow similar structure</reason>
+      </artifact>
+      <artifact>
+        <path>mobile/src/screens/auth/SignupScreen.tsx</path>
+        <kind>screen</kind>
+        <symbol>SignupScreen</symbol>
+        <reason>Example auth screen with form submission, error handling, Supabase integration - similar patterns apply to profile setup</reason>
+      </artifact>
+      <artifact>
+        <path>mobile/src/store/slices/authSlice.ts</path>
+        <kind>redux-slice</kind>
+        <symbol>authSlice</symbol>
+        <reason>Example Redux slice with async thunks for Supabase operations - create profileSlice following same patterns</reason>
+      </artifact>
+      <artifact>
+        <path>mobile/src/services/supabase.ts</path>
+        <kind>service</kind>
+        <symbol>supabase</symbol>
+        <reason>Initialized Supabase client - use for database operations (profiles table) and storage operations (avatar uploads)</reason>
+      </artifact>
+      <artifact>
+        <path>mobile/src/services/auth.ts</path>
+        <kind>service</kind>
+        <symbol>AuthService</symbol>
+        <reason>Example service layer for auth operations - create ProfileService following same patterns for profile updates</reason>
+      </artifact>
+      <artifact>
+        <path>mobile/src/theme/index.ts</path>
+        <kind>theme</kind>
+        <symbol>lightTheme, darkTheme, ThemeProvider</symbol>
+        <reason>Theme system exports - wrap app/components with ThemeProvider, access theme via styled-components props</reason>
+      </artifact>
+      <artifact>
+        <path>mobile/src/theme/utils/responsive.ts</path>
+        <kind>utility</kind>
+        <symbol>useResponsive, useResponsiveValue, useGridColumns</symbol>
+        <reason>Responsive design hooks - use to adapt layout for phone/tablet/desktop breakpoints</reason>
+      </artifact>
+    </code>
+
+    <dependencies>
+      <node>
+        <package name="react" version="^18.2.0"/>
+        <package name="react-native" version="^0.73.0"/>
+        <package name="@react-navigation/native" version="^6.1.9"/>
+        <package name="@react-navigation/stack" version="^6.3.20"/>
+        <package name="@reduxjs/toolkit" version="^2.0.0"/>
+        <package name="react-redux" version="^9.0.4"/>
+        <package name="@supabase/supabase-js" version="^2.38.0"/>
+        <package name="styled-components" version="^5.3.11"/>
+        <package name="react-native-keychain" version="^8.1.3"/>
+        <package name="date-fns" version="^3.0.0"/>
+        <package name="@react-native-async-storage/async-storage" version="^1.19.3"/>
+      </node>
+      <note>Need to add: react-native-image-picker for profile picture upload, timezone picker library (react-native-community/datetimepicker or custom)</note>
+    </dependencies>
+  </artifacts>
+
+  <interfaces>
+    <interface>
+      <name>InputProps</name>
+      <kind>component-interface</kind>
+      <signature>{ value: string; onChangeText: (text: string) => void; placeholder?: string; label?: string; error?: string; helperText?: string; secureTextEntry?: boolean; keyboardType?: string; disabled?: boolean; leftIcon?: string; rightIcon?: string; onRightIconPress?: () => void; testID?: string; }</signature>
+      <path>contracts/component-contracts/component-interfaces.ts</path>
+    </interface>
+    <interface>
+      <name>ButtonProps</name>
+      <kind>component-interface</kind>
+      <signature>{ title: string; onPress: () => void; variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost'; size?: 'small' | 'medium' | 'large'; disabled?: boolean; loading?: boolean; icon?: string; fullWidth?: boolean; elevation?: ShadowElevation; shadowColor?: ThemeColor; testID?: string; }</signature>
+      <path>contracts/component-contracts/component-interfaces.ts</path>
+    </interface>
+    <interface>
+      <name>Profile (DTO)</name>
+      <kind>data-interface</kind>
+      <signature>{ userId: string; fullName: string; phone?: string; timezone: string; avatarUrl?: string; notificationPreferences: { email: boolean; push: boolean; sms: boolean; reminderFrequency: 'daily' | 'weekly' | 'biweekly' | 'monthly'; }; createdAt: string; updatedAt: string; }</signature>
+      <path>contracts/data-contracts/dto-definitions.ts</path>
+    </interface>
+    <interface>
+      <name>createAsyncThunk</name>
+      <kind>redux-function</kind>
+      <signature>createAsyncThunk(typePrefix: string, payloadCreator: (arg, thunkAPI) => Promise&lt;T&gt;)</signature>
+      <path>@reduxjs/toolkit</path>
+    </interface>
+    <interface>
+      <name>supabase.from('profiles').update()</name>
+      <kind>database-method</kind>
+      <signature>supabase.from('profiles').update(data).eq('user_id', userId).select()</signature>
+      <path>mobile/src/services/supabase.ts</path>
+    </interface>
+    <interface>
+      <name>supabase.storage.from('avatars').upload()</name>
+      <kind>storage-method</kind>
+      <signature>supabase.storage.from('avatars').upload(path, file, options)</signature>
+      <path>mobile/src/services/supabase.ts</path>
+    </interface>
+  </interfaces>
+
+  <constraints>
+    <constraint>
+      <category>architecture</category>
+      <rule>Follow Atomic Design pattern: Screen component uses atoms (Input, Button) from mobile/src/components/atoms/</rule>
+    </constraint>
+    <constraint>
+      <category>state-management</category>
+      <rule>Use Redux Toolkit for global profile state. Create profileSlice.ts with async thunks for Supabase operations. Follow authSlice.ts patterns.</rule>
+    </constraint>
+    <constraint>
+      <category>design-system</category>
+      <rule>ALL styling must use theme system: theme.colors for colors, theme.shadows for elevation, theme.spacing for padding/margin, theme.typography for text styles. NO hardcoded values.</rule>
+    </constraint>
+    <constraint>
+      <category>responsive</category>
+      <rule>Implement responsive design using breakpoints (phone: 0-599px, tablet: 600-1023px, desktop: 1024px+). Use useResponsive() hook. Rearrange layout, don't just shrink.</rule>
+    </constraint>
+    <constraint>
+      <category>database</category>
+      <rule>Update profiles table via Supabase client. Table has RLS policies - users can only update their own profile. Use user_id from auth.users as foreign key.</rule>
+    </constraint>
+    <constraint>
+      <category>storage</category>
+      <rule>Upload profile pictures to Supabase Storage bucket 'avatars' with path: public/{user_id}/avatar.jpg. Public read access, user-only write access.</rule>
+    </constraint>
+    <constraint>
+      <category>validation</category>
+      <rule>Validate all fields before saving: full name (2-100 chars, spaces/hyphens/apostrophes only), phone (E.164 format if provided), timezone (valid IANA), image (JPG/PNG, max 5MB).</rule>
+    </constraint>
+    <constraint>
+      <category>navigation</category>
+      <rule>Add ProfileSetupScreen to auth navigation stack. Navigate from SignupScreen after successful registration. On "Save", navigate to OnboardingTutorial (US-1.4) or Main. On "Skip", navigate directly to Main.</rule>
+    </constraint>
+    <constraint>
+      <category>performance</category>
+      <rule>Profile save must complete in under 2 seconds. Use loading states during async operations. Handle errors gracefully with user-friendly messages.</rule>
+    </constraint>
+    <constraint>
+      <category>accessibility</category>
+      <rule>All interactive elements must have accessibility labels, roles, and states. Support screen readers. Ensure WCAG AA compliance. Use semantic HTML/RN components.</rule>
+    </constraint>
+  </constraints>
+
+  <tests>
+    <standards>
+      <paragraph>Use Jest for unit/integration tests, React Native Testing Library for component tests. Test files located in mobile/__tests__/ directory. Follow test pyramid: 60% unit, 30% integration, 10% E2E. Use AAA pattern (Arrange-Act-Assert). One assertion per test with descriptive names. Mock Supabase client for tests.</paragraph>
+    </standards>
+    <locations>
+      <location>mobile/__tests__/unit/store/profileSlice.test.ts</location>
+      <location>mobile/__tests__/unit/validation/profileValidation.test.ts</location>
+      <location>mobile/__tests__/integration/profile-setup.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea ac_ref="1">Test full name validation: accepts valid names with spaces/hyphens/apostrophes, rejects special characters, enforces 2-100 character length</idea>
+      <idea ac_ref="1">Test phone validation: accepts E.164 format, allows empty/null (optional field), rejects invalid formats</idea>
+      <idea ac_ref="1">Test timezone validation: accepts valid IANA timezones, rejects invalid values, requires selection</idea>
+      <idea ac_ref="2">Test image upload: accepts JPG/PNG under 5MB, rejects oversized files, rejects unsupported formats, handles upload errors</idea>
+      <idea ac_ref="2">Test image preview: displays selected image before save, shows default avatar if no image selected</idea>
+      <idea ac_ref="3">Test notification preferences: toggles work correctly, reminder frequency selector works, preferences saved with profile</idea>
+      <idea ac_ref="4">Test skip functionality: "Skip" button navigates to next screen, profile can be accessed later from settings</idea>
+      <idea ac_ref="5">Test profile save: successful save updates Redux store, updates Supabase profiles table, shows success message, navigates to next screen</idea>
+      <idea ac_ref="5">Test error handling: network errors show user-friendly message, validation errors prevent save, storage errors handled gracefully</idea>
+      <idea ac_ref="all">Test accessibility: all inputs have labels, buttons have accessibility roles, screen reader navigation works</idea>
+    </ideas>
+  </tests>
+</story-context>
