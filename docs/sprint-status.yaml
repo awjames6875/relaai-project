@@ -1,0 +1,86 @@
+# Sprint Status - RelaAI Project Development Tracking
+# Generated: 2025-01-02
+# Project: relaai-project
+# Tracking System: file-system
+# Story Location: {project-root}/docs/stories
+#
+# This file tracks all epics and stories through the development lifecycle.
+# Agents update this file as work progresses.
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic exists in epic file but not contexted
+#   - contexted: Epic tech context created (required before drafting stories)
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - drafted: Story file created in stories folder
+#   - ready-for-dev: Draft approved and story context created
+#   - in-progress: Developer actively working on implementation
+#   - review: Under SM review (via code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - completed: Retrospective has been done
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epics should be 'contexted' before stories can be 'drafted'
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically drafts next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', SM reviews, then Dev moves to 'done'
+
+generated: "2025-01-02"
+project: "relaai-project"
+project_key: "relaai-project"
+tracking_system: "file-system"
+story_location: "{project-root}/docs/stories"
+
+development_status:
+  # Epic 1: User Onboarding
+  epic-1: backlog
+  1-1-user-registration: done
+  1-2-user-login: done
+  1-3-profile-setup: done  # Completed 2025-11-14: All 5 ACs met, image picker active, component tests pending Jest config fix
+  1-4-onboarding-tutorial: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Contact Management
+  epic-2: backlog
+  2-1-add-contact: backlog
+  2-2-view-contact-list: backlog
+  2-3-search-contacts: backlog
+  2-4-edit-contact: backlog
+  2-5-delete-contact: backlog
+  2-6-view-contact-details: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: AI Message Generation
+  epic-3: backlog
+  3-1-generate-birthday-message: backlog
+  3-2-customize-message-tone: backlog
+  3-3-provide-context: backlog
+  3-4-view-message-alternatives: backlog
+  3-5-edit-generated-message: backlog
+  3-6-save-message-as-draft: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Relationship Health
+  epic-4: backlog
+  4-1-view-health-score: backlog
+  4-2-view-relationship-temperature: backlog
+  4-3-track-contact-frequency: backlog
+  4-4-view-last-contact-date: backlog
+  4-5-add-relationship-notes: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: Message Scheduling
+  epic-5: backlog
+  5-1-schedule-message: backlog
+  5-2-view-scheduled-messages: backlog
+  5-3-edit-scheduled-message: backlog
+  5-4-cancel-scheduled-message: backlog
+  5-5-receive-send-notification: backlog
+  epic-5-retrospective: optional
