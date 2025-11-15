@@ -1,5 +1,40 @@
 {
-  "name": "relaai",
-  "displayName": "RelaAI"
+  "expo": {
+    "name": "RelaAI",
+    "slug": "relaai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTabletMode": true,
+      "bundleIdentifier": "com.relaai"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.relaai"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow RelaAI to access your photos.",
+          "cameraPermission": "Allow RelaAI to access your camera.",
+          "cameraRollPermission": "Allow RelaAI to access your photos."
+        }
+      ]
+    ]
+  }
 }
 
