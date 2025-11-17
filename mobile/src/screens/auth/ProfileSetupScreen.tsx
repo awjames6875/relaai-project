@@ -25,7 +25,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 import styled, { useTheme } from 'styled-components/native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -363,47 +363,55 @@ export const ProfileSetupScreen: React.FC = () => {
    * Handle image picker
    * Launches the image library to select a profile picture
    */
-  const handleImagePicker = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        maxWidth: 1000,
-        maxHeight: 1000,
+  const handleImagePicker = async () => {
+    try {
+      // Request permissions
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          'Permission Denied',
+          'We need permission to access your photo library to upload a profile picture.'
+        );
+        return;
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        aspect: [1, 1],
         quality: 0.8,
-      },
-      (response) => {
-        if (response.didCancel) {
-          // User cancelled picker
-          return;
-        }
+      });
 
-        if (response.errorCode) {
-          Alert.alert('Error', 'Failed to pick image. Please try again.');
-          return;
-        }
+      if (result.canceled) {
+        // User cancelled picker
+        return;
+      }
 
-        if (response.assets?.[0]) {
-          const asset = response.assets[0];
-          const file = {
-            uri: asset.uri!,
-            type: asset.type!,
-            size: asset.fileSize!,
-            name: asset.fileName,
-          };
+      if (result.assets?.[0]) {
+        const asset = result.assets[0];
+        const file = {
+          uri: asset.uri,
+          type: asset.type || 'image/jpeg',
+          size: 0, // Expo doesn't provide file size directly
+          name: asset.uri.split('/').pop() || 'image.jpg',
+        };
 
-          // Validate the selected file
-          const validation = validateAvatarFile(file);
-          if (!validation.isValid) {
-            setErrors({ ...errors, avatarFile: validation.error });
-            Alert.alert('Invalid Image', validation.error || 'Please select a valid JPG or PNG image under 5MB.');
-          } else {
-            setAvatarFile(file);
-            setAvatarPreview(asset.uri!);
-            setErrors({ ...errors, avatarFile: undefined });
-          }
+        // Validate the selected file
+        const validation = validateAvatarFile(file);
+        if (!validation.isValid) {
+          setErrors({ ...errors, avatarFile: validation.error });
+          Alert.alert('Invalid Image', validation.error || 'Please select a valid JPG or PNG image.');
+        } else {
+          setAvatarFile(file);
+          setAvatarPreview(asset.uri);
+          setErrors({ ...errors, avatarFile: undefined });
         }
       }
-    );
+    } catch (error) {
+      console.error('Image picker error:', error);
+      Alert.alert('Error', 'Failed to pick image. Please try again.');
+    }
   };
 
   /**
