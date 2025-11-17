@@ -1,144 +1,57 @@
-# 🚀 RelaAI Quick Start Guide
+# RelaAI - Quick Start Guide
 
-## What You Have Now
+**RelaAI** is an AI-powered relationship manager that automates keeping in touch with friends and family.
 
-✅ **Complete PRD** - `docs/PRD.md` (2,214 lines)  
-✅ **BMAD Installed** - Ready to use for planning/development  
-✅ **Supabase MCP Configured** - Database ready  
-✅ **Supabase Database** - All tables created  
-✅ **React Native App Scaffold** - Complete mobile app structure  
-✅ **Authentication System** - Login/Signup screens built  
-✅ **Design System** - Complete theme system  
-✅ **Redux Store** - State management setup  
-✅ **Navigation** - React Navigation configured  
+**Vision:** Like "Auto Text" app but with AI superpowers - messages are AI-generated, contextually relevant, randomly timed (looks natural), with relationship health tracking.
 
----
+## What It Does
 
-## 🏃‍♂️ Start Building Now
+1. **AI generates messages** (contextual, not templates)
+2. **Schedules randomly** within your availability window (so it looks human)
+3. **Remembers conversations** using past SMS context
+4. **Nudges proactively** when relationships need attention
+5. **Auto-replies** with AI suggestions (you approve first)
 
-### Option 1: Run the Mobile App (Fastest)
+## Tech Stack
 
-**Navigate to mobile directory:**
+- React Native + Expo 54
+- Redux Toolkit
+- Supabase + PostgreSQL
+- Anthropic Claude API
+- Styled Components (custom design system)
+
+## Getting Started
+
 ```bash
 cd mobile
-```
-
-**Install dependencies:**
-```bash
 npm install --legacy-peer-deps
+npm run expo:start
+# Press 'i' for iOS or 'a' for Android
 ```
 
-**Start the app:**
+## MVP Epics
+
+1. **Epic 2:** Contact Management
+2. **Epic 3:** AI Message Generation  
+3. **Epic 4:** Smart Scheduling (randomized)
+4. **Epic 5:** Personal Facts Database
+5. **Epic 6:** Relationship Health Tracking
+6. **Epic 7:** Auto-Reply System
+
+## Commands
+
 ```bash
-npm start
-# Then in another terminal:
-npm run ios      # For iOS
-npm run android  # For Android
+npm run expo:start      # Dev server
+npm run typecheck       # Type check
+npm run test            # Run tests
+npm run format          # Format code
 ```
 
-See `mobile/BUILD-QUICKSTART.md` for detailed instructions.
+## Next Steps
 
----
+1. Run the app
+2. Build contact management
+3. Build AI message generation
+4. Implement smart scheduling
 
-### Option 2: Use BMAD to Plan Next Feature
-
-**In Cursor chat:**
-
-1. **Reference BMAD Architect:**
-   ```
-   @bmad/bmm/agents/architect
-   ```
-   
-2. **Ask for help:**
-   ```
-   Help me create a technical architecture for Epic 2: Contact Management from docs/PRD.md
-   ```
-
-3. **Or use BMAD Dev agent:**
-   ```
-   @bmad/bmm/agents/dev
-   
-   I want to implement Epic 2: Contact Management. I have my PRD at docs/PRD.md and my contracts are in contracts/. Help me build the contact management features.
-   ```
-
----
-
-## 📁 Project Structure
-
-```
-relaai-project/
-├── mobile/                    # React Native app ✅ Ready to run
-│   ├── src/
-│   │   ├── screens/auth/      # Login/Signup ✅
-│   │   ├── components/        # Reusable components ✅
-│   │   ├── store/             # Redux state ✅
-│   │   ├── services/          # Supabase client ✅
-│   │   ├── navigation/        # React Navigation ✅
-│   │   └── theme/             # Design system ✅
-│   └── package.json           # Dependencies ✅
-├── docs/
-│   ├── PRD.md                 # Product Requirements ✅
-│   ├── design-system.md       # UI/UX guidelines ✅
-│   └── feature-roadmap.md     # Future features ✅
-├── contracts/                 # API contracts ✅
-├── code-templates/            # Code templates ✅
-├── coordination/              # Workflows ✅
-├── agents/                    # Your agents ✅
-├── bmad/                      # BMAD installed ✅
-└── README.md                  # Overview ✅
-```
-
----
-
-## 🎯 Your Next Steps
-
-### Immediate (Today):
-1. Run `cd mobile && npm install`
-2. Test authentication screens
-3. Verify Supabase integration works
-
-### This Week:
-1. Build remaining Epic 1 features (Profile Setup, Onboarding)
-2. Start Epic 2: Contact Management
-3. Use BMAD agents for planning/development
-
-### Coming Soon:
-1. Epic 3: AI Message Generation
-2. Epic 4: Relationship Health
-3. Epic 5: Message Scheduling
-
----
-
-## 📚 Key Files to Read
-
-- `mobile/BUILD-QUICKSTART.md` - How to run your app
-- `docs/PRD.md` - Product requirements
-- `CLAUDE.md` - Architecture and development guide
-- `BMAD-RESEARCH-SUMMARY.md` - BMAD integration strategy
-
----
-
-## 🆘 Need Help?
-
-**BMAD Quick Reference:**
-```
-@bmad/bmm/agents/pm        - Product Manager
-@bmad/bmm/agents/architect - Technical Architect
-@bmad/bmm/agents/dev       - Developer Agent
-@bmad/bmm/agents/sm        - Scrum Master
-@bmad/bmm/agents/ux-designer - UX Designer
-```
-
-**Your Agents:**
-- Database Agent - Supabase schema management
-- UI Designer Agent - React Native components
-- QA Agent - Testing
-
----
-
-## 🎉 You're All Set!
-
-Everything is configured and ready to go. Just run `npm install` in the mobile directory and start building!
-
-**Questions?** Reference `CLAUDE.md` or use BMAD agents for guidance.
-
+See `CLAUDE.md` for full architecture details.

@@ -1,16 +1,21 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with code in this repository.
 
 ## Project Overview
 
-RelaAI is an AI-powered relationship management mobile app using a **multi-agent development system** with three specialized agents working in coordination:
+**RelaAI MVP** is a streamlined AI-powered relationship manager - like "Auto Text: Schedule Messages" app but with AI superpowers.
 
-- **UI Designer Agent** - React Native frontend development
-- **QA Agent** - Testing and quality assurance
-- **Database Agent** - Supabase/PostgreSQL database management
+**Core Concept:**
+- Users add contacts and set desired contact frequency (weekly, monthly, etc.)
+- AI generates personalized messages (not templates) using conversation context
+- Messages schedule randomly within user availability windows (looks human, not automated)
+- App tracks relationship health and nudges users before relationships drift
+- Auto-reply suggestions for incoming messages (user approves, then sends)
 
-The system uses a contract-driven approach where all agents reference shared specifications in `contracts/` to maintain consistency.
+**The 10x Factor:** Messages are AI-contextual, randomly timed (undetectable automation), and proactive relationship tracking - transforming simple scheduling into intelligent relationship management.
+
+**Development Approach:** Single developer focused MVP (no multi-agent coordination overhead). All code is in one codebase using shared `contracts/` directory for specifications.
 
 ## Tech Stack
 
