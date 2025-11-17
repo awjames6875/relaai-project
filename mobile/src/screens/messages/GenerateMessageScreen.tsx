@@ -14,7 +14,6 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
-  TextInput,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -177,13 +176,15 @@ const CharCount = styled.Text`
   text-align: right;
 `;
 
-const MessageCard = styled(Card)<{ isSelected: boolean }>`
+const MessageCardTouchable = styled.TouchableOpacity<{ isSelected: boolean }>`
   margin-bottom: ${spacing[3]}px;
   background-color: ${(props) =>
     props.isSelected ? colors.primaryLight : colors.white};
   border-width: 2px;
+  border-radius: 8px;
   border-color: ${(props) =>
     props.isSelected ? colors.primary : colors.grayLight};
+  padding: ${spacing[3]}px;
 `;
 
 const MessageText = styled.Text`
@@ -242,10 +243,10 @@ const Footer = styled.View`
 
 // ==================== COMPONENT ====================
 
-export const GenerateMessageScreen: React.FC<Props> = ({
+export const GenerateMessageScreen = ({
   navigation,
   route,
-}) => {
+}: Props) => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector(selectUser);
   const [state, setState] = useState<GenerationState>({
@@ -339,8 +340,8 @@ export const GenerateMessageScreen: React.FC<Props> = ({
     dispatch(
       createMessageThunk({
         userId: user.id,
-        contactData: {
-          contact_id: contactId,
+        messageData: {
+          contactId,
           content: selectedMessage,
           occasion: state.selectedOccasion,
           tone: state.selectedTone,
@@ -414,8 +415,9 @@ export const GenerateMessageScreen: React.FC<Props> = ({
           )}
 
           {state.alternatives.map((message, index) => (
-            <TouchableOpacity
+            <MessageCardTouchable
               key={index}
+              isSelected={state.selectedAlternativeIndex === index}
               onPress={() =>
                 setState((prev) => ({
                   ...prev,
@@ -423,15 +425,13 @@ export const GenerateMessageScreen: React.FC<Props> = ({
                 }))
               }
             >
-              <MessageCard isSelected={state.selectedAlternativeIndex === index}>
-                <MessageText>{message}</MessageText>
-                {state.selectedAlternativeIndex === index && (
-                  <SelectBadge>
-                    <SelectBadgeText>✓ Selected</SelectBadgeText>
-                  </SelectBadge>
-                )}
-              </MessageCard>
-            </TouchableOpacity>
+              <MessageText>{message}</MessageText>
+              {state.selectedAlternativeIndex === index && (
+                <SelectBadge>
+                  <SelectBadgeText>✓ Selected</SelectBadgeText>
+                </SelectBadge>
+              )}
+            </MessageCardTouchable>
           ))}
 
           <Button
@@ -440,9 +440,7 @@ export const GenerateMessageScreen: React.FC<Props> = ({
             fullWidth
             onPress={handleRegenerate}
             style={{ marginTop: spacing[4] }}
-          >
-            Regenerate Options
-          </Button>
+          >Regenerate Options</Button>
         </Content>
 
         <Footer>
@@ -451,17 +449,13 @@ export const GenerateMessageScreen: React.FC<Props> = ({
             size="medium"
             fullWidth
             onPress={() => navigation.goBack()}
-          >
-            Cancel
-          </Button>
+          >Cancel</Button>
           <Button
             variant="primary"
             size="medium"
             fullWidth
             onPress={handleSaveAsDraft}
-          >
-            Save Draft
-          </Button>
+          >Save Draft</Button>
         </Footer>
       </Container>
     );
@@ -558,18 +552,14 @@ export const GenerateMessageScreen: React.FC<Props> = ({
             size="medium"
             fullWidth
             onPress={() => navigation.goBack()}
-          >
-            Cancel
-          </Button>
+          >Cancel</Button>
           <Button
             variant="primary"
             size="medium"
             fullWidth
             onPress={handleGenerateMessage}
             disabled={!state.selectedOccasion}
-          >
-            Generate
-          </Button>
+          >Generate</Button>
         </Footer>
       )}
     </Container>

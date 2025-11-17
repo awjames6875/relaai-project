@@ -10,6 +10,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from 'styled-components/native';
 import { MainTabParamList } from '@contracts/component-contracts/navigation-types';
 import { ContactsNavigator } from './ContactsNavigator';
+import { MessagesNavigator } from './MessagesNavigator';
 // TODO: Add icons library when available (react-native-vector-icons or @expo/vector-icons)
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -52,6 +53,13 @@ export const MainNavigator = () => {
           // ),
         }}
       />
+      <Tab.Screen
+        name="Messages"
+        component={MessagesNavigator}
+        options={{
+          tabBarLabel: 'Messages',
+        }}
+      />
       {/* Future tabs - Uncomment as features are implemented */}
       {/*
       <Tab.Screen
@@ -59,13 +67,6 @@ export const MainNavigator = () => {
         component={HomeNavigator}
         options={{
           tabBarLabel: 'Home',
-        }}
-      />
-      <Tab.Screen
-        name="Messages"
-        component={MessagesNavigator}
-        options={{
-          tabBarLabel: 'Messages',
         }}
       />
       <Tab.Screen
