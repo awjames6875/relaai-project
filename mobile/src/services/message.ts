@@ -9,11 +9,13 @@
  */
 
 import { supabase } from './supabase';
+import { generateAIMessage as generateWithClaude } from './claudeAI';
 import {
   Message,
   CreateMessageDTO,
   UpdateMessageDTO,
   ScheduleMessageDTO,
+  GenerateMessageDTO,
   GeneratedMessageResponse,
 } from '@contracts/data-contracts/dto-definitions';
 
@@ -579,28 +581,37 @@ export function subscribeToMessages(callback: (payload: any) => void): () => voi
 
 /**
  * Generates an AI message using Claude API.
- * NOTE: This is a placeholder until Claude API integration is implemented.
  *
- * @param generateData - Generation parameters.
- * @returns Generated message response or error.
+ * Calls the Claude AI service to generate 3 contextual message alternatives
+ * based on contact details, personal facts, and user preferences.
+ *
+ * @param userId - The user ID making the request
+ * @param generateData - Generation parameters (contactId, occasion, tone, context)
+ * @returns Generated message response with 3 alternatives or error
  */
 export const generateAIMessage = async (
-  generateData: {
-    contactId: string;
-    occasion: 'birthday' | 'anniversary' | 'casual' | 'apology' | 'thankyou' | 'congratulations';
-    tone?: 'formal' | 'casual' | 'humorous' | 'heartfelt' | 'professional';
-    context?: string;
-  }
+  userId: string,
+  generateData: GenerateMessageDTO
 ): Promise<{ data: GeneratedMessageResponse | null; error: DatabaseError | null }> => {
-  // TODO: Implement Claude API integration
-  // This is a placeholder that returns a mock response for now
+  // Delegate to Claude AI service
+  const result = await generateWithClaude(userId, generateData);
+
+  // Convert Claude AI error format to message service error format
+  if (result.error) {
+    return {
+      data: null,
+      error: {
+        type: 'database',
+        message: result.error.message,
+        code: result.error.code,
+        details: result.error.details,
+      } as DatabaseError,
+    };
+  }
+
   return {
-    data: null,
-    error: {
-      type: 'database',
-      message: 'AI message generation not yet implemented',
-      code: 'NOT_IMPLEMENTED',
-    } as DatabaseError,
+    data: result.data,
+    error: null,
   };
 };
 

@@ -21,6 +21,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,json,md}\""
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.69.0",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.9",
