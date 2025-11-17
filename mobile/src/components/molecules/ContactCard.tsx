@@ -80,7 +80,7 @@ const getInitials = (name: string): string => {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 };
 
-export const ContactCard: React.FC<ContactCardProps> = ({ contact, onPress }) => {
+export const ContactCard = ({ contact, onPress }: ContactCardProps): React.ReactElement => {
   const initials = getInitials(contact.name);
 
   return (

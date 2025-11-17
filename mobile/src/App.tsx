@@ -12,15 +12,15 @@ import { store } from './store';
 import { theme } from './theme';
 import { AppNavigator } from './navigation';
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
-        <SafeAreaProvider>
-          <ThemeProvider theme={theme}>
+        <ThemeProvider theme={theme}>
+          <SafeAreaProvider>
             <AppNavigator />
-          </ThemeProvider>
-        </SafeAreaProvider>
+          </SafeAreaProvider>
+        </ThemeProvider>
       </Provider>
     </GestureHandlerRootView>
   );

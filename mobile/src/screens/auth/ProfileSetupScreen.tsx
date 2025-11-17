@@ -311,7 +311,7 @@ const SuccessText = styled.Text`
 // Component
 // ============================================================================
 
-export const ProfileSetupScreen: React.FC = () => {
+export const ProfileSetupScreen = (): React.ReactElement => {
   const theme = useTheme();
   const navigation = useNavigation<ProfileSetupScreenNavigationProp>();
   const route = useRoute<ProfileSetupScreenRouteProp>();

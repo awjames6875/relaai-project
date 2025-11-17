@@ -17,13 +17,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-export const AppNavigator: React.FC = () => {
+export const AppNavigator = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     // Load existing session on app start
-    dispatch(loadSession());
+    // Add timeout to prevent infinite loading if auth fails
+    const timeoutId = setTimeout(() => {
+      console.warn('Auth session loading took too long, proceeding to login');
+    }, 5000);
+
+    dispatch(loadSession()).finally(() => clearTimeout(timeoutId));
   }, [dispatch]);
 
   // Show loading screen while checking session

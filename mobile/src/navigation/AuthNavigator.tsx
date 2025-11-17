@@ -10,7 +10,7 @@ import { AuthStackParamList } from '@contracts/component-contracts/navigation-ty
 
 const Stack = createStackNavigator<AuthStackParamList>();
 
-export const AuthNavigator: React.FC = () => {
+export const AuthNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{

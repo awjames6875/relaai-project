@@ -44,12 +44,12 @@ const ButtonContainer = styled.View`
   max-width: 200px;
 `;
 
-export const EmptyState: React.FC<EmptyStateProps> = ({
+export const EmptyState = ({
   title,
   message,
   actionLabel,
   onAction,
-}) => {
+}: EmptyStateProps): React.ReactElement => {
   return (
     <Container>
       <Title>{title}</Title>

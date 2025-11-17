@@ -35,13 +35,13 @@ const TouchableCard = styled.TouchableOpacity<{ padding: number; marginBottom: n
   ${shadowStyle}
 `;
 
-export const Card: React.FC<CardProps> = ({
+export const Card = ({
   children,
   onPress,
   padding = 16,
   marginBottom = 12,
   ...props
-}) => {
+}: CardProps): React.ReactElement => {
   if (onPress) {
     return (
       <TouchableCard

@@ -18,7 +18,7 @@ import {
 
 const Stack = createStackNavigator<ContactsStackParamList>();
 
-export const ContactsNavigator: React.FC = () => {
+export const ContactsNavigator = () => {
   const theme = useTheme();
 
   return (

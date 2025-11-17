@@ -67,7 +67,7 @@ const ButtonText = styled.Text<{ variant: string }>`
   color: ${({ variant }) => (variant === 'outline' ? colors.primary : '#FFFFFF')};
 `;
 
-export const Button: React.FC<ButtonProps> = ({
+export const Button = ({
   variant = 'primary',
   size = 'medium',
   isLoading = false,
@@ -75,7 +75,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   children,
   ...props
-}) => {
+}: ButtonProps): React.ReactElement => {
   const isDisabled = disabled || isLoading;
 
   return (

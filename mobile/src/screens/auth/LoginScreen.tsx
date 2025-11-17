@@ -82,7 +82,7 @@ const SignupLink = styled.Text`
   margin-left: 4px;
 `;
 
-export const LoginScreen: React.FC<Props> = ({ navigation }) => {
+export const LoginScreen = ({ navigation }: Props): React.ReactElement => {
   const dispatch = useDispatch<AppDispatch>();
   const { isLoading, error } = useSelector((state: RootState) => state.auth);
 

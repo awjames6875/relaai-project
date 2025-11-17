@@ -14,7 +14,7 @@ import { ContactsNavigator } from './ContactsNavigator';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-export const MainNavigator: React.FC = () => {
+export const MainNavigator = () => {
   const theme = useTheme();
 
   return (

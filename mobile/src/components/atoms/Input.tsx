@@ -42,7 +42,7 @@ const ErrorText = styled.Text`
   margin-top: 4px;
 `;
 
-export const Input: React.FC<InputProps> = ({ label, error, containerStyle, testID, ...props }) => {
+export const Input = ({ label, error, containerStyle, testID, ...props }: InputProps): React.ReactElement => {
   return (
     <Container style={containerStyle} testID={testID}>
       {label && <Label>{label}</Label>}
