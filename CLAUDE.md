@@ -1,473 +1,298 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-**RelaAI MVP** is a streamlined AI-powered relationship manager - like "Auto Text: Schedule Messages" app but with AI superpowers.
+**RelaAI MVP** is a streamlined AI-powered relationship manager designed to help users maintain meaningful relationships through intelligent message generation and scheduling.
 
 **Core Concept:**
 - Users add contacts and set desired contact frequency (weekly, monthly, etc.)
-- AI generates personalized messages (not templates) using conversation context
-- Messages schedule randomly within user availability windows (looks human, not automated)
+- AI generates personalized messages (contextual, not templates) using Claude API
+- Messages schedule randomly within user availability windows (appears human, not automated)
 - App tracks relationship health and nudges users before relationships drift
-- Auto-reply suggestions for incoming messages (user approves, then sends)
+- Auto-reply suggestions for incoming messages (user approves before sending)
 
-**The 10x Factor:** Messages are AI-contextual, randomly timed (undetectable automation), and proactive relationship tracking - transforming simple scheduling into intelligent relationship management.
-
-**Development Approach:** Single developer focused MVP (no multi-agent coordination overhead). All code is in one codebase using shared `contracts/` directory for specifications.
+**Development Approach:** Single developer focused MVP. No multi-agent coordination overhead—just pragmatic, focused development with shared contracts in `contracts/` as specifications.
 
 ## Tech Stack
 
-- **Mobile:** React Native + Expo, TypeScript, Redux Toolkit, React Navigation, Styled Components
-- **Backend:** Node.js + Express API (not yet implemented in codebase)
-- **Database:** Supabase (PostgreSQL 15+) with Row Level Security
-- **AI:** Anthropic Claude API for message generation
-- **Testing:** Jest, React Native Testing Library, Detox (E2E), Supertest (API)
+- **Mobile:** React Native + Expo SDK 54, TypeScript, Redux Toolkit, React Navigation, Styled Components
+- **Backend:** Node.js + Express (planned, not yet in codebase)
+- **Database:** Supabase (PostgreSQL) with Row Level Security
+- **AI:** Anthropic Claude API (via `@anthropic-ai/sdk`)
+- **Testing:** Jest + React Native Testing Library, factories via Faker.js
 
 ## Development Commands
 
-### Database Commands
-```bash
-# Initialize Supabase locally
-supabase init
-supabase start
+### Mobile App (Primary Focus)
 
-# Create new migration
-supabase migration new <migration_name>
-
-# Apply migrations
-supabase migration up
-
-# Rollback migration
-supabase migration down
-
-# View migration status
-supabase migration list
-
-# Test RLS policies
-npm run test:rls
-```
-
-### Mobile App Commands
 ```bash
 # Install dependencies
 cd mobile && npm install
 
-# Start Metro bundler
-npm start
+# Start development
+npm start                    # Metro bundler
+npm run expo:start          # Alternative: Expo CLI
 
-# Run on iOS
-npm run ios
+# Run on device/emulator
+npm run expo:ios            # iOS simulator
+npm run expo:android        # Android emulator
+npm run ios                 # Native iOS (requires Xcode)
+npm run android             # Native Android (requires Android Studio)
 
-# Run on Android
-npm run android
+# Code quality
+npm run typecheck           # TypeScript type checking
+npm run lint                # ESLint check
+npm run lint:fix            # Auto-fix linting issues
+npm run format              # Prettier formatting
+npm run format:check        # Check formatting
 
-# Type checking
-npm run typecheck
-
-# Linting
-npm run lint
-
-# Format code
-npm run format
-
-# Run all tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run single test file
-npm test NotificationCard.test.tsx
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run E2E tests
-npm run test:e2e
+# Testing
+npm test                    # Run all tests
+npm test -- <filename>      # Run specific test file
+npm run test:watch          # Watch mode
+npm run test:coverage       # Coverage report
 ```
 
-### Backend Commands (when implemented)
+### Database (Supabase)
+
 ```bash
-cd backend && npm install
-npm run dev          # Development server
-npm run build        # Production build
-npm test            # Run tests
-npm run test:api    # API integration tests
+# Initialize and start local Supabase
+supabase init
+supabase start
+
+# Migrations
+supabase migration new <name>   # Create new migration
+supabase migration up           # Apply pending migrations
+supabase migration down         # Rollback last migration
+supabase migration list         # Show migration status
 ```
 
-## Architecture
-
-### Multi-Agent Coordination System
-
-This project uses a specialized multi-agent architecture where independent AI agents handle different layers:
-
-1. **Contract-First Development**: All APIs, database schemas, and component interfaces are defined in `contracts/` before implementation
-2. **Parallel Development**: Agents work independently using contracts as the source of truth
-3. **Structured Handoffs**: Agents communicate through formal handoff documents in `coordination/handoff-protocols/`
-4. **Quality Gates**: Each agent has specific quality checkpoints in `coordination/review-gates/`
-5. **Template System**: Comprehensive templates in `code-templates/` and `coordination/` for consistent development
-
-### Directory Structure
+## Project Structure
 
 ```
-relaai-project/
-├── agents/                      # Agent configuration files
-│   ├── ui-designer/            # Frontend agent specs
-│   ├── qa-agent/               # Testing agent specs
-│   └── database-agent/         # Database agent specs
-│
-├── contracts/                   # Shared specifications (source of truth)
-│   ├── api-contracts/          # OpenAPI specs (YAML)
-│   ├── component-contracts/    # React component interfaces (TypeScript)
-│   ├── database-contracts/     # Database schema, indexes, functions (SQL)
-│   └── data-contracts/         # DTOs, validation schemas (TypeScript)
-│
-├── coordination/                # Agent coordination system (49 templates)
-│   ├── handoff-protocols/      # Inter-agent handoff templates (5 files)
-│   ├── review-gates/           # Quality gate checklists (5 files)
-│   ├── task-template/          # Task definition templates (5 files)
-│   ├── workflows/              # Development workflows (5 files)
-│   └── README.md              # Coordination system guide
-│
-├── code-templates/              # Reusable code templates (27 templates)
-│   ├── react-native-components/ # Component templates (5 files)
-│   ├── redux/                  # Redux templates (4 files)
-│   ├── database/               # SQL migration templates (5 files)
-│   ├── testing/                # Test templates (5 files)
-│   ├── services/               # Service layer templates (3 files)
-│   └── README.md              # Template usage guide
-│
-├── mobile/                      # React Native application
-│   ├── src/
-│   │   ├── components/         # Atomic design components
-│   │   │   ├── atoms/
-│   │   │   ├── molecules/
-│   │   │   └── organisms/
-│   │   ├── screens/           # Full page components
-│   │   ├── store/             # Redux slices, selectors
-│   │   ├── services/          # API/Supabase clients
-│   │   ├── navigation/        # React Navigation setup
-│   │   └── theme/             # Design system
-│   └── __tests__/             # Test files
-│
-└── docs/                        # Documentation
+mobile/
+├── src/
+│   ├── screens/           # Full-page components (auth, messages, contacts)
+│   │   ├── auth/          # Login/signup flows
+│   │   ├── messages/      # Message viewing and generation
+│   │   └── contacts/      # Contact management
+│   ├── components/        # Reusable components (atomic design)
+│   │   ├── atoms/         # Basic building blocks (Button, Input, etc.)
+│   │   ├── molecules/     # Combined atoms (MessageCard, ContactItem)
+│   │   └── organisms/     # Complex compositions
+│   ├── services/          # API and external service clients
+│   │   ├── auth.ts        # Supabase authentication
+│   │   ├── contact.ts     # Contact CRUD operations
+│   │   ├── message.ts     # Message operations
+│   │   ├── profile.ts     # User profile management
+│   │   ├── relationship.ts # Relationship tracking
+│   │   ├── claudeAI.ts    # Claude API integration
+│   │   └── supabase.ts    # Supabase client initialization
+│   ├── store/             # Redux state management
+│   │   └── slices/        # Redux slices for different domains
+│   ├── navigation/        # React Navigation setup
+│   ├── theme/             # Design system (colors, spacing, typography, shadows)
+│   └── utils/             # Utility functions
+├── __tests__/
+│   ├── unit/              # Component and utility unit tests
+│   ├── integration/       # Integration tests
+│   ├── accessibility/     # Accessibility tests
+│   ├── test-utils.tsx     # Test helper functions
+│   └── factories/         # Test data factories
+├── jest.config.js         # Jest configuration
+├── tsconfig.json          # TypeScript config
+└── package.json
+
+contracts/
+├── component-contracts/   # React component interfaces (TypeScript)
+├── data-contracts/        # Data DTOs and validation schemas
+└── database-contracts/    # Database schema documentation
+
+docs/
+├── design-system.md       # Design system specification
+└── other documentation
 ```
 
-### Database Schema
+## Key Architecture Patterns
 
-The complete Supabase schema is documented in `contracts/database-contracts/schema.sql` and includes:
+### Redux State Management
 
-**Core Tables:**
-- `profiles` - User profiles (extends Supabase Auth)
-- `contacts` - User contacts with relationship data
-- `messages` - Messages (draft, scheduled, sent) with AI metadata
+Redux Toolkit slices handle domain-specific state:
+- `auth` - Authentication status and user session
+- `contacts` - Contact list and details
+- `messages` - Message drafts, scheduled, sent
 - `relationships` - Relationship health tracking
-- `personal_facts` - AI-extracted facts about contacts
-- `message_templates` - Message templates (user + system)
 
-**Key Features:**
-- UUIDs for all primary keys
-- Row Level Security (RLS) policies on all user tables
-- Soft deletes with `deleted_at` timestamps
-- Automatic `updated_at` triggers
-- Real-time subscriptions enabled on `messages`
-- Full-text search on contacts
-- JSONB for flexible attributes
-
-### State Management
-
-- **Redux Toolkit** for global state
-- Local component state for UI-only concerns
-- Normalized state shape (entities stored by ID)
-- Selectors for derived state
-- Thunks for async operations
-- State shape defined in `contracts/component-contracts/redux-types.ts`
+**Pattern:**
+- Actions dispatched from screens
+- Thunks handle async Supabase calls
+- Selectors extract derived state
+- Components subscribe via `useSelector`
 
 ### Design System
 
-RelaAI implements an advanced design system with three core principles:
-
-1. **Shadow System** - Two-layer shadows (ambient + directional) for realistic depth
-2. **Color Palette** - Primary, secondary, neutral, and semantic colors with 10 shades each
-3. **Responsive Design** - Box-based layouts that rearrange, not shrink
-
-**Key Features:**
-- **Shadows:** Elevation scale from 0 (none) → 24 (maximum prominence)
-- **Colors:** Full palettes with light/dark mode support
-- **Typography:** Modular type scale (1.25 ratio) with 12 variants
-- **Spacing:** 4px-based spacing scale for consistency
-- **Breakpoints:** Phone (0-599px), Tablet (600-1023px), Desktop (1024px+)
-- **Accessibility:** WCAG AA compliance, contrast checking, font scaling
-
 **Location:** `mobile/src/theme/`
-**Documentation:** `docs/design-system.md` and `mobile/src/theme/README.md`
 
-**Quick Example:**
+Consistent styling via theme provider:
+- **Colors:** Primary, secondary, neutral, semantic with 10 shades
+- **Shadows:** Elevation scale (0-24) for depth
+- **Spacing:** 4px-based scale
+- **Typography:** 12-variant type scale
+- **Breakpoints:** Phone (0-599px), Tablet (600-1023px), Desktop (1024px+)
+
+**Usage:**
 ```typescript
 import styled from 'styled-components/native';
 import { applyShadow } from '@/theme';
 
 const Card = styled.View`
   background-color: ${({ theme }) => theme.colors.neutral[100]};
-  ${({ theme }) => applyShadow(theme.shadows.sm)};
+  ${({ theme }) => applyShadow(theme.shadows.md)};
   padding: ${({ theme }) => theme.spacing[4]}px;
-  border-radius: 12px;
 `;
 ```
 
-### Component Architecture
+### Services Layer
 
-Follows **Atomic Design** principles:
-- **Atoms**: Button, Input, Avatar (in `mobile/src/components/atoms/`)
-- **Molecules**: MessageCard, ContactListItem (in `mobile/src/components/molecules/`)
-- **Organisms**: MessageList, Dashboard (in `mobile/src/components/organisms/`)
-- **Screens**: Complete pages (in `mobile/src/screens/`)
+Each service module handles a specific domain:
 
-Component interfaces defined in `contracts/component-contracts/component-interfaces.ts`
+- **`auth.ts`** - Supabase Auth (signup, login, logout, session)
+- **`contact.ts`** - Contact CRUD with Supabase queries
+- **`message.ts`** - Message operations (create, update, fetch, delete)
+- **`claudeAI.ts`** - Claude API calls for message generation with streaming
+- **`supabase.ts`** - Supabase client initialization and configuration
 
-**All components use the design system:**
-- Theme colors via `${({ theme }) => theme.colors.primary[500]}`
-- Shadows via `${({ theme }) => applyShadow(theme.shadows.md)}`
-- Spacing via `${({ theme }) => theme.spacing[4]}px`
-- Typography via `${({ theme }) => theme.typography.body}`
+Services return typed responses matching data contracts in `contracts/data-contracts/`.
 
-## Working with Templates
+### Component Testing
 
-### Using Code Templates
+**Test Structure:**
+- Unit tests in `mobile/__tests__/unit/` for isolated component logic
+- Integration tests in `mobile/__tests__/integration/` for component + store interactions
+- Use `test-utils.tsx` for consistent test setup (Redux store, theme, navigation)
+- Test factories (`@faker-js/faker`) for generating realistic test data
 
-**Quick Start:**
-1. Navigate to `code-templates/README.md` for full guide
-2. Copy relevant template from `code-templates/`
-3. Search for `// TODO:` comments
-4. Customize for your specific feature
-5. Reference contracts in `contracts/` directory
-
-**Example - Creating a new component:**
+**Running Tests:**
 ```bash
-# Copy template
-cp code-templates/react-native-components/molecule-component-template.tsx \
-   mobile/src/components/molecules/NotificationCard.tsx
-
-# Search for TODO comments and customize
-# Update contracts/component-contracts/component-interfaces.ts with props
+npm test NotificationCard.test.tsx    # Single file
+npm run test:watch                    # Watch mode
+npm run test:coverage                 # Full coverage report
 ```
 
-**Available Templates:**
-- **React Native:** Atoms, molecules, organisms, screens, tests
-- **Redux:** Slices, selectors, thunks, integration tests
-- **Database:** Migrations (up/down), RLS policies, triggers, seed data
-- **Testing:** Unit, integration, E2E, API tests, test factories
-- **Services:** API services, Supabase clients, custom hooks
+## Current Implementation Status
 
-### Using Coordination Templates
+**✅ Complete:**
+- Expo SDK 54 setup with modern dependencies
+- Design system (colors, shadows, spacing, typography)
+- Authentication service (Supabase Auth)
+- Redux store structure and slices
+- Navigation setup (Tab and Stack navigation)
+- AI message generation service with Claude API streaming
+- Core services: contacts, messages, profiles, relationships
+- Test infrastructure (Jest, factories, test utils)
 
-**Quick Start:**
-1. Navigate to `coordination/README.md` for full guide
-2. Select appropriate template for your task
-3. Follow step-by-step checklist
-4. Complete handoffs between agents
+**⏳ In Progress:**
+- Feature screens (some partially implemented)
+- Component library expansion
+- Test coverage expansion
 
-**Available Templates:**
-- **Handoff Protocols:** Database→UI, UI→QA, QA→Bug reports, completion checklists
-- **Review Gates:** UI Designer, Database, QA quality gates, code review, performance benchmarks
-- **Task Templates:** Component implementation, database migration, test suite, epic, bug fix
-- **Workflows:** Feature development, schema change, bug fix, release, refactoring
+**Not Yet Started:**
+- Backend API (Express)
+- Advanced features (rich messages, groups, etc.)
 
-**Example - Starting a new feature:**
-1. Read `coordination/workflows/feature-development-workflow.md`
-2. Create epic using `coordination/task-template/feature-task-epic.md`
-3. Define contracts in `contracts/` first
-4. Use code templates from `code-templates/` for implementation
-5. Complete handoff documents when passing to next agent
+## Common Development Workflows
 
-## Agent Responsibilities
+### Adding a New Feature Screen
 
-### When Working on Frontend (UI Designer Role)
+1. **Create screen component** in `mobile/src/screens/domain/`
+2. **Add Redux slice** if new domain state needed (`mobile/src/store/slices/`)
+3. **Create service calls** if needed (`mobile/src/services/`)
+4. **Add navigation route** in `mobile/src/navigation/`
+5. **Write unit tests** in `mobile/__tests__/unit/`
+6. **Write integration tests** if Redux-heavy in `mobile/__tests__/integration/`
 
-**Implementation:**
-- Implement React Native components using TypeScript
-- Follow atomic design pattern (atoms → molecules → organisms)
-- Place components in appropriate `mobile/src/components/` subdirectories
-- Implement screens in `mobile/src/screens/`
-- Use Redux Toolkit for state management
-- Define component props in `contracts/component-contracts/component-interfaces.ts`
+### Adding a UI Component
 
-**Templates to Use:**
-- `code-templates/react-native-components/` for component structure
-- `code-templates/redux/` for state management
-- `code-templates/services/` for API integration
+1. **Create component** in appropriate atomic level (`mobile/src/components/atoms/molecules/organisms/`)
+2. **Use design system** for all styling (colors, spacing, shadows, typography)
+3. **Define TypeScript props** with JSDoc comments
+4. **Create unit test** in `mobile/__tests__/unit/`
+5. **Update `contracts/component-contracts/`** if part of contract
 
-**Quality Gate:**
-- Review checklist: `coordination/review-gates/ui-designer-quality-gate.md`
-- TypeScript compiles with no errors (`npm run typecheck`)
-- ESLint passes with no warnings (`npm run lint`)
-- All interactive elements have accessibility labels
-- Responsive design tested (iPhone SE, iPhone 14 Pro, iPad)
-- Unit tests written (>80% coverage)
-- Performance: maintain 60 FPS
+### Fetching Data from Supabase
 
-**Handoff:**
-- Complete `coordination/handoff-protocols/ui-to-qa-handoff-template.md` when ready for testing
-- Update contracts if component interfaces change
+1. **Create service method** in appropriate file (`mobile/src/services/contact.ts`, etc.)
+2. **Return typed response** matching data contract
+3. **Handle errors** gracefully
+4. **Dispatch Redux thunk** from screen or container component
+5. **Subscribe to state** with `useSelector` in presentational components
 
-### When Working on Database (Database Agent Role)
+### Calling Claude API
 
-**Implementation:**
-- Define schema in SQL migrations
-- Create idempotent migrations with rollback scripts
-- Enable RLS on all user tables with appropriate policies
-- Add indexes on foreign keys and query patterns
-- Include timestamps (`created_at`, `updated_at`) on all tables
-- Use UUIDs for primary keys
-- Implement soft deletes where appropriate
+Use `claudeAI.ts` service:
+```typescript
+// Stream-based message generation
+const { stream, stop } = await generateMessage({
+  userId,
+  contactId,
+  context: conversationHistory,
+  tone: 'friendly',
+});
 
-**Templates to Use:**
-- `code-templates/database/migration-up-template.sql`
-- `code-templates/database/migration-down-template.sql`
-- `code-templates/database/rls-policy-template.sql`
-- `code-templates/database/trigger-function-template.sql`
-
-**Quality Gate:**
-- Review checklist: `coordination/review-gates/database-agent-quality-gate.md`
-- All tables have primary keys and proper foreign keys
-- Query performance <100ms (p95) verified with `EXPLAIN ANALYZE`
-- RLS policies tested with multiple users
-- Migrations are backward compatible
-- Schema documented in `contracts/database-contracts/`
-
-**Handoff:**
-- Complete `coordination/handoff-protocols/database-to-ui-handoff-template.md` for frontend
-- Complete `coordination/handoff-protocols/database-to-backend-handoff-template.md` for backend
-
-### When Working on Tests (QA Agent Role)
-
-**Implementation:**
-- Follow test pyramid: 60% unit, 30% integration, 10% E2E
-- Use Arrange-Act-Assert (AAA) pattern
-- One assertion per test with descriptive names
-- Place unit tests in `mobile/__tests__/unit/`
-- Place integration tests in `mobile/__tests__/integration/`
-- Place E2E tests in `mobile/__tests__/e2e/`
-- Mock external dependencies
-- Use factories for test data (Faker.js)
-
-**Templates to Use:**
-- `code-templates/testing/component-unit-test-template.test.tsx`
-- `code-templates/testing/integration-test-template.test.ts`
-- `code-templates/testing/e2e-test-template.e2e.ts`
-- `code-templates/testing/test-factory-template.ts`
-
-**Quality Gate:**
-- Review checklist: `coordination/review-gates/qa-agent-quality-gate.md`
-- Overall coverage >80%
-- Critical paths: 100%
-- Service layer: >90%
-- Components: >80%
-- All tests passing (`npm test`)
-- Accessibility tests passing
-- Performance benchmarks met
-
-**Handoff:**
-- File bugs using `coordination/handoff-protocols/qa-bug-report-template.md`
-- Provide comprehensive test reports
-
-## Key Development Principles
-
-### Contract-Driven Development
-1. **Define contracts first** in `contracts/` directory before implementation
-2. Agents implement against contracts independently
-3. Contracts serve as the integration point
-4. Update contracts before making breaking changes
-5. Reference contracts from code templates
-
-**Workflow:**
-```
-Define Contract → Implement Feature → Update Tests → Review → Merge
-       ↓               ↓                   ↓           ↓        ↓
-   contracts/    code-templates/    test templates   review   contracts/
-                                                     gates
+// Handle stream chunks
+stream.on('text', (chunk) => setMessage(prev => prev + chunk));
+stream.on('end', () => setIsGenerating(false));
 ```
 
-### Quality Gates
-Each agent has specific quality checkpoints before handoff:
-- **UI Designer**: `coordination/review-gates/ui-designer-quality-gate.md`
-- **Database Agent**: `coordination/review-gates/database-agent-quality-gate.md`
-- **QA Agent**: `coordination/review-gates/qa-agent-quality-gate.md`
-- **Code Review**: `coordination/review-gates/code-review-checklist.md`
-- **Performance**: `coordination/review-gates/performance-benchmarks.md`
+## TypeScript & Linting Standards
 
-### Handoff Protocol
-When completing work that affects other agents:
-1. Update relevant contracts in `contracts/`
-2. Complete handoff template from `coordination/handoff-protocols/`
-3. Document what changed and why
-4. Provide sample data or test scenarios
-5. Notify dependent agent(s)
-6. Reference quality gate checklist
+- **TypeScript:** Reduced strictness for MVP (intentional—see recent commits)
+- **ESLint:** Active for code quality, configured in `.eslintrc.json`
+- **Prettier:** Auto-formatting configured
+- **Path Aliases:** `@/` points to `src/`, `@components/`, `@services/`, etc.
 
-## Success Metrics
+**Before committing:**
+```bash
+npm run typecheck    # Verify types
+npm run lint:fix     # Auto-fix issues
+npm run format       # Format code
+npm test             # Run tests
+```
 
-**Performance:**
-- API Response Time: <200ms (p95)
-- Database Queries: <100ms (p95)
-- App render: <16ms/frame (60 FPS)
-- Cold app launch: <3 seconds
-- Screen render: <500ms
+## Environment Variables
 
-**Quality:**
-- Test Coverage: >80% overall
-- Critical paths: 100%
-- Bug Rate: <2 per 100 LOC
-- Accessibility Score: >90 (WCAG AA)
+Copy `.env.example` to `.env` and fill in:
+- `SUPABASE_URL` - Your Supabase project URL
+- `SUPABASE_ANON_KEY` - Supabase anonymous key
+- `ANTHROPIC_API_KEY` - Anthropic API key for Claude
 
-**Code Quality:**
-- TypeScript with strict mode enabled
-- ESLint + Prettier configured
-- No `any` types in production code
-- All public functions have JSDoc documentation
-- `react-hooks/exhaustive-deps` enforced as error
+These are injected at build time and accessible via `process.env` and React Native's config.
 
-## Common Workflows
+## Contract Directory
 
-### Implementing a New Feature
-1. Read `coordination/workflows/feature-development-workflow.md`
-2. Define contracts in `contracts/` (API, Database, Component, Data)
-3. Database Agent: Create migration using `code-templates/database/`
-4. UI Designer: Implement components using `code-templates/react-native-components/`
-5. QA Agent: Write tests using `code-templates/testing/`
-6. Complete quality gates and handoffs
-7. Code review using `coordination/review-gates/code-review-checklist.md`
+**Location:** `contracts/`
 
-### Making a Database Change
-1. Read `coordination/workflows/schema-change-workflow.md`
-2. Create migration using `code-templates/database/migration-up-template.sql`
-3. Create rollback using `code-templates/database/migration-down-template.sql`
-4. Test locally with `supabase migration up`
-5. Complete `coordination/review-gates/database-agent-quality-gate.md`
-6. Handoff to dependent agents with appropriate templates
+The `contracts/` directory defines interfaces before implementation:
+- **`component-contracts/component-interfaces.ts`** - React component prop types
+- **`data-contracts/dto-definitions.ts`** - API response/request DTOs
+- **`database-contracts/schema.sql`** - Database schema documentation
 
-### Fixing a Bug
-1. Read `coordination/workflows/bug-fix-workflow.md`
-2. Create bug task using `coordination/task-template/bug-fix-task.md`
-3. Write regression test first
-4. Implement fix
-5. Verify quality gates
-6. Complete handoff to QA
+Update contracts when changing public APIs, component props, or database schema.
 
-## Project Status
+## Performance Notes
 
-**Current State:**
-- ✅ Multi-agent coordination system complete (49 templates)
-- ✅ Contract structure complete (API, Component, Database, Data)
-- ✅ Code templates complete (27 templates)
-- ✅ Documentation complete (2 comprehensive READMEs)
-- ⏳ Mobile app implementation (ready to start with templates)
-- ⏳ Backend API implementation (not started)
+- **Target:** 60 FPS on mobile devices, <3s cold launch
+- **Key Areas:** Message generation (streaming), contact list rendering (virtualization), image loading
+- **Monitoring:** Check DevTools performance profiler in Expo
 
-**Next Steps:**
-- Use `feature-development-workflow.md` to implement features
-- Use code templates for consistent implementation
-- Follow quality gates before handoffs
-- Update contracts as features are implemented
+## Recent Architecture Changes
+
+**Phase 1 (Most Recent):** Streamlined from multi-agent system to single-developer MVP
+- Removed coordination system overhead
+- Simplified template usage
+- Fixed Expo SDK 54 compatibility
+- Reduced TypeScript strictness for faster iteration
+
+The old multi-agent coordination system files (in `coordination/` and `code-templates/`) remain in the repo as reference but are not actively used.

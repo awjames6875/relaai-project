@@ -17,11 +17,16 @@ import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Environment variables
-// In production, use @env config or similar
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://odgkiyjmegjdiheyxxbf.supabase.co';
-const SUPABASE_ANON_KEY =
-  process.env.SUPABASE_ANON_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kZ2tpeWptZWdqZGloZXl4eGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwMjk0NDksImV4cCI6MjA3NzYwNTQ0OX0.5lTb3dJrFMgTCqOxxTjgFqdr6VpgLZiPZ7zX5-F8bcA';
+// IMPORTANT: Fill in .env with real credentials from Supabase dashboard
+// Settings > API > Project URL and Project API keys (anon key)
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  throw new Error(
+    'Supabase credentials not configured. Please add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to your .env file.'
+  );
+}
 
 /**
  * Supabase client instance

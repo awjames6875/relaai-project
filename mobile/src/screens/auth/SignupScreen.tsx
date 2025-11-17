@@ -168,8 +168,14 @@ export const SignupScreen = ({ navigation }: Props): React.ReactElement => {
 
       if (signUpUser.fulfilled.match(result)) {
         // Navigate to ProfileSetupScreen after successful registration
-        // Pass user email for context (optional)
+        // Pass user ID and email so ProfileSetup can save to database
+        const userId = result.payload?.user?.id;
+        if (!userId) {
+          Alert.alert('Error', 'Failed to get user ID after signup');
+          return;
+        }
         navigation.navigate('ProfileSetup', {
+          userId: userId,
           email: email,
         });
       } else {
