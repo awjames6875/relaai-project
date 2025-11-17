@@ -57,17 +57,27 @@ jest.mock('react-native-gesture-handler', () => ({
   Swipeable: ({ children }: any) => children,
 }));
 
-// Mock React Native Reanimated
-jest.mock('react-native-reanimated', () => ({
-  ...jest.requireActual('react-native-reanimated'),
-  useAnimatedStyle: () => ({}),
-  useSharedValue: () => ({ value: 0 }),
-  withTiming: (value: any) => value,
-  Animated: {
-    View: 'View',
-    Text: 'Text',
-  },
-}));
+// Mock React Native Reanimated v4.x
+jest.mock('react-native-reanimated', () => {
+  const actual = jest.requireActual('react-native-reanimated');
+  return {
+    ...actual,
+    useAnimatedStyle: () => ({}),
+    useSharedValue: (initialValue: any) => ({
+      value: initialValue,
+    }),
+    useAnimatedReaction: jest.fn(),
+    useWorkletCallback: jest.fn((fn) => fn),
+    withTiming: (value: any, config?: any) => value,
+    withSpring: (value: any, config?: any) => value,
+    withDecay: (value: any, config?: any) => value,
+    Animated: {
+      View: 'View',
+      Text: 'Text',
+      ScrollView: 'ScrollView',
+    },
+  };
+});
 
 // Silence console warnings in tests
 const originalError = console.error;

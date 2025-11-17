@@ -1,17 +1,15 @@
-const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const { getDefaultConfig } = require('expo/metro-config');
 
 /**
  * Metro bundler configuration for RelaAI mobile app
+ * Updated for Expo SDK 54 with New Architecture support
  */
-const defaultConfig = getDefaultConfig(__dirname);
+const config = getDefaultConfig(__dirname);
 
-const config = {
-  resolver: {
-    alias: {
-      '@': './src',
-    },
-  },
+// Add path aliases
+config.resolver.alias = {
+  '@': './src',
 };
 
-module.exports = mergeConfig(defaultConfig, config);
+module.exports = config;
 
