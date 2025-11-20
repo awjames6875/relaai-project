@@ -7,34 +7,97 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Alert,
+  Clipboard,
+  Linking,
 } from 'react-native';
-
-interface Contact {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-}
+import { Contact, deleteContact as deleteContactFromStorage } from '../services/storage';
+import { generateAIMessage } from '../services/aiService';
 
 export default function ContactDetailScreen({ route, navigation }: any) {
   const { contact } = route.params as { contact: Contact };
   const [generatedMessage, setGeneratedMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [messageCopied, setMessageCopied] = useState(false);
 
   const handleGenerateMessage = async () => {
     setLoading(true);
     try {
-      // For now, just a placeholder message
-      const messages = [
-        `Hey ${contact.name}! Just thinking of you and wanted to check in. How have you been?`,
-        `Hi ${contact.name}! Hope you're doing great. Would love to catch up soon!`,
-        `Hey ${contact.name}! Missing our chats. Let's schedule a call this week!`,
-      ];
-      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-      setGeneratedMessage(randomMessage);
+      const message = await generateAIMessage({
+        contactName: contact.name,
+        phone: contact.phone,
+        email: contact.email,
+      });
+      setGeneratedMessage(message);
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to generate message');
+      console.error('Generate message error:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCopyMessage = async () => {
+    if (!generatedMessage) return;
+    try {
+      await Clipboard.setString(generatedMessage);
+      setMessageCopied(true);
+      // Reset the "Copied" message after 2 seconds
+      setTimeout(() => setMessageCopied(false), 2000);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to copy message to clipboard');
+      console.error('Copy error:', error);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!generatedMessage) {
+      Alert.alert('No Message', 'Please generate a message first');
+      return;
+    }
+
+    try {
+      // Open SMS app with the message pre-filled
+      const smsUrl = `sms:${contact.phone}?body=${encodeURIComponent(generatedMessage)}`;
+      const supported = await Linking.canOpenURL(smsUrl);
+
+      if (supported) {
+        await Linking.openURL(smsUrl);
+      } else {
+        Alert.alert('Error', 'SMS is not supported on this device');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to open messaging app');
+      console.error('Send message error:', error);
+    }
+  };
+
+  const handleDeleteContact = () => {
+    Alert.alert(
+      'Delete Contact',
+      `Are you sure you want to delete ${contact.name}?`,
+      [
+        {
+          text: 'Cancel',
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: async () => {
+            try {
+              await deleteContactFromStorage(contact.id);
+              Alert.alert('Success', `${contact.name} has been deleted`);
+              navigation.goBack();
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete contact');
+              console.error('Delete error:', error);
+            }
+          },
+          style: 'destructive',
+        },
+      ]
+    );
   };
 
   return (
@@ -73,8 +136,10 @@ export default function ContactDetailScreen({ route, navigation }: any) {
           {generatedMessage && (
             <View style={styles.messageBox}>
               <Text style={styles.messageText}>{generatedMessage}</Text>
-              <TouchableOpacity style={styles.copyButton}>
-                <Text style={styles.copyButtonText}>Copy Message</Text>
+              <TouchableOpacity style={styles.copyButton} onPress={handleCopyMessage}>
+                <Text style={styles.copyButtonText}>
+                  {messageCopied ? '✓ Copied' : 'Copy Message'}
+                </Text>
               </TouchableOpacity>
             </View>
           )}
@@ -82,10 +147,18 @@ export default function ContactDetailScreen({ route, navigation }: any) {
 
         {/* Actions */}
         <View style={styles.section}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={handleSendMessage}
+            disabled={!generatedMessage}
+            opacity={!generatedMessage ? 0.5 : 1}
+          >
             <Text style={styles.actionButtonText}>Send Message</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionButton, styles.deleteButton]}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.deleteButton]}
+            onPress={handleDeleteContact}
+          >
             <Text style={styles.deleteButtonText}>Delete Contact</Text>
           </TouchableOpacity>
         </View>

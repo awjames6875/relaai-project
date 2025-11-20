@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,14 +7,10 @@ import {
   StyleSheet,
   SafeAreaView,
   Button,
+  Alert,
 } from 'react-native';
-
-interface Contact {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-}
+import { useFocusEffect } from '@react-navigation/native';
+import { loadContacts, addContact as addContactToStorage, Contact } from '../services/storage';
 
 const DUMMY_CONTACTS: Contact[] = [
   { id: '1', name: 'Alice Johnson', phone: '555-1234', email: 'alice@example.com' },
@@ -24,12 +20,49 @@ const DUMMY_CONTACTS: Contact[] = [
 ];
 
 export default function ContactListScreen({ navigation }: any) {
-  const [contacts, setContacts] = useState<Contact[]>(DUMMY_CONTACTS);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load contacts when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      loadContactsFromStorage();
+    }, [])
+  );
+
+  const loadContactsFromStorage = async () => {
+    try {
+      setIsLoading(true);
+      const loadedContacts = await loadContacts();
+
+      // If no contacts exist, initialize with dummy data
+      if (loadedContacts.length === 0) {
+        await Promise.all(DUMMY_CONTACTS.map(contact => addContactToStorage(contact)));
+        setContacts(DUMMY_CONTACTS);
+      } else {
+        setContacts(loadedContacts);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to load contacts');
+      console.error('Error loading contacts:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAddContact = () => {
     navigation.navigate('AddContact', {
-      onSave: (newContact: Contact) => {
-        setContacts([...contacts, { ...newContact, id: String(contacts.length + 1) }]);
+      onSave: async (newContact: Contact) => {
+        try {
+          const updatedContacts = await addContactToStorage({
+            ...newContact,
+            id: Date.now().toString(), // Generate unique ID based on timestamp
+          });
+          setContacts(updatedContacts);
+        } catch (error) {
+          Alert.alert('Error', 'Failed to add contact');
+          console.error('Error adding contact:', error);
+        }
       },
     });
   };

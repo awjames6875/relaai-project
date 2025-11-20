@@ -8,26 +8,35 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
-
-interface Contact {
-  name: string;
-  phone: string;
-  email: string;
-}
+import { validateContact, sanitizeInput } from '../services/validation';
+import { Contact } from '../services/storage';
 
 export default function AddContactScreen({ navigation, route }: any) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSave = () => {
-    if (!name || !phone || !email) {
-      alert('Please fill in all fields');
+    // Validate inputs
+    const validation = validateContact(name, email, phone);
+
+    if (!validation.isValid) {
+      setErrors(validation.errors);
       return;
     }
 
-    const newContact: Contact = { name, phone, email };
+    // Clear errors if validation passes
+    setErrors({});
+
+    const newContact: Contact = {
+      id: '', // Will be set by storage service
+      name: sanitizeInput(name),
+      phone: sanitizeInput(phone),
+      email: sanitizeInput(email),
+    };
 
     // Call the onSave callback if provided
     if (route?.params?.onSave) {
@@ -47,36 +56,54 @@ export default function AddContactScreen({ navigation, route }: any) {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Name</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, errors.name && styles.inputError]}
               placeholder="Enter contact name"
               value={name}
-              onChangeText={setName}
+              onChangeText={(text) => {
+                setName(text);
+                if (errors.name) {
+                  setErrors({ ...errors, name: '' });
+                }
+              }}
               placeholderTextColor="#999"
             />
+            {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Phone</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, errors.phone && styles.inputError]}
               placeholder="Enter phone number"
               value={phone}
-              onChangeText={setPhone}
+              onChangeText={(text) => {
+                setPhone(text);
+                if (errors.phone) {
+                  setErrors({ ...errors, phone: '' });
+                }
+              }}
               keyboardType="phone-pad"
               placeholderTextColor="#999"
             />
+            {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, errors.email && styles.inputError]}
               placeholder="Enter email address"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => {
+                setEmail(text);
+                if (errors.email) {
+                  setErrors({ ...errors, email: '' });
+                }
+              }}
               keyboardType="email-address"
               placeholderTextColor="#999"
             />
+            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
           </View>
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -126,6 +153,15 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 16,
     color: '#000',
+  },
+  inputError: {
+    borderColor: '#ff3b30',
+  },
+  errorText: {
+    color: '#ff3b30',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '500',
   },
   saveButton: {
     backgroundColor: '#007AFF',
